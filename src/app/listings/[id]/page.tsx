@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import * as React from "react";
 
 import { ListingGallery } from "@/modules/listings/components/listing-gallery";
+import { ListingMap } from "@/modules/listings/components/listing-map";
 import {
   formatArea,
   formatCurrency,
@@ -152,6 +153,12 @@ export default async function ListingDetailPage({
             </div>
           </section>
         </section>
+
+        <ListingMap
+          latitude={listing.latitude}
+          longitude={listing.longitude}
+          title={listing.title}
+        />
 
         {listing.aiSummary === null ? (
           <section className="panel">

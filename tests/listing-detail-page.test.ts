@@ -38,6 +38,8 @@ const listing: PublicListingDetail = {
     highlights: ["2 pokoje"],
     summary: "Przestronne mieszkanie w centrum.",
   },
+  latitude: 50.0792122,
+  longitude: 19.9368133,
   depositAmount: null,
   utilitiesDescription: null,
   floorCount: 4,
@@ -72,5 +74,9 @@ describe("ListingDetailPage", () => {
     expect(topFacts).toContain("1. piętro w czteropiętrowym bloku");
     expect(html).not.toContain("Wyposażenie i cechy");
     expect(html).not.toContain("Brak dodatkowych cech w znormalizowanych danych.");
+    expect(html).toContain("Oferta na mapie");
+    expect(html).toContain("openstreetmap.org/export/embed.html");
+    expect(html).toContain("50.0792122");
+    expect(html).toContain("19.9368133");
   });
 });

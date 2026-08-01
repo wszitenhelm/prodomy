@@ -506,6 +506,36 @@ textarea {
   border-top: 1px solid var(--border);
 }
 
+.listing-map {
+  display: grid;
+  gap: 1rem;
+}
+
+.listing-map__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.listing-map__header h2 {
+  margin: 0;
+}
+
+.listing-map__frame {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-muted);
+}
+
+.listing-map__notice {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
 .description {
   white-space: pre-line;
   line-height: 1.7;
@@ -808,6 +838,15 @@ textarea {
   .listing-card__footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .listing-map__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .listing-map__frame {
+    min-height: 330px;
   }
 
   .detail-price {
