@@ -5,12 +5,16 @@ import type { ListingSearchInput } from "@/modules/listings/types";
 
 interface ListingFiltersProps {
   readonly filters: ListingSearchInput;
+  readonly naturalQuery?: string;
 }
 
-export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
+export function ListingFilters({ filters, naturalQuery }: ListingFiltersProps): ReactElement {
   return (
-    <form className="filters-card" action="/listings" method="get">
+    <form className="filters-card" action="/api/listings/natural-search" method="get">
       <input name="active" type="hidden" value="true" />
+      {naturalQuery !== undefined ? (
+        <input name="previousNaturalQuery" type="hidden" value={naturalQuery} />
+      ) : null}
       {/* Transaction type and city are chosen in the hero above; preserve
           them here so applying the rest of these filters does not reset
           that selection. */}
@@ -18,6 +22,9 @@ export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
         <input name="transactionType" type="hidden" value={filters.transactionType} />
       ) : null}
       {filters.city?.map((city) => <input key={city} name="city" type="hidden" value={city} />)}
+      {filters.features?.map((feature) => (
+        <input key={feature} name="features" type="hidden" value={feature} />
+      ))}
       <div className="filters-card__header">
         <div>
           <p className="eyebrow">Wyszukiwanie</p>
@@ -31,7 +38,13 @@ export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
         <legend className="sr-only">Filtry wyszukiwania ofert</legend>
         <label className="field field--wide">
           <span>Szukaj</span>
-          <input defaultValue={filters.q ?? ""} name="q" placeholder="np. balkon, Kazimierz, Dietla" type="search" />
+          <input
+            defaultValue={naturalQuery ?? filters.q ?? ""}
+            maxLength={500}
+            name="query"
+            placeholder="np. chcę wynająć mieszkanie w Krakowie"
+            type="search"
+          />
         </label>
 
         <label className="field">

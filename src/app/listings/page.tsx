@@ -18,14 +18,22 @@ export default async function ListingsPage({
   searchParams,
 }: ListingsPageProps): Promise<React.JSX.Element> {
   try {
-    const filters = searchParamsToInput(await searchParams);
+    const rawSearchParams = await searchParams;
+    const filters = searchParamsToInput(rawSearchParams);
     const result = await getListingIndex(filters);
+    const naturalQuery =
+      typeof rawSearchParams.naturalQuery === "string"
+        ? rawSearchParams.naturalQuery
+        : undefined;
 
     return (
       <main>
-        <ListingsHero filters={filters} />
+        <ListingsHero
+          filters={filters}
+          naturalQuery={naturalQuery}
+        />
         <div className="shell shell--wide stack">
-          <ListingFilters filters={filters} />
+          <ListingFilters filters={filters} naturalQuery={naturalQuery} />
 
           <section className="stack">
             <header className="panel results-header">
