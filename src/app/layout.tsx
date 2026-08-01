@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Prodomy",
-  description: "Smart Real Estate Listings Platform MVP scaffold",
+  description: "Publiczny katalog mieszkań na sprzedaż i wynajem",
 };
 
 interface RootLayoutProps {
@@ -16,7 +16,7 @@ export default function RootLayout({
   children,
 }: RootLayoutProps): React.JSX.Element {
   return (
-    <html lang="en">
+    <html lang="pl">
       <body>{children}</body>
     </html>
   );

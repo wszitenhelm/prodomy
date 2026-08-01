@@ -2,11 +2,11 @@
 
 export default function GlobalError(): React.JSX.Element {
   return (
-    <html lang="en">
+    <html lang="pl">
       <body className="shell">
-        <section className="panel">
-          <h1>Something went wrong</h1>
-          <p>The repository foundation is in place, but this screen is a placeholder.</p>
+        <section className="panel empty-state">
+          <h1>Wystąpił błąd</h1>
+          <p>Nie udało się poprawnie wyświetlić tej części aplikacji. Odśwież stronę i spróbuj ponownie.</p>
         </section>
       </body>
     </html>
