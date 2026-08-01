@@ -17,6 +17,8 @@ describe("listing domain schemas", () => {
       description: "Opis oferty",
       transactionTypeHint: "SALE",
       locationText: "Kraków, Krowodrza",
+      latitude: 50.0646501,
+      longitude: 19.9449799,
       priceText: "699 000 zł",
       attributes: {
         Powierzchnia: "52,7 m²",
@@ -120,6 +122,8 @@ describe("listing domain schemas", () => {
       city: "Kraków",
       district: "Krowodrza",
       street: null,
+      latitude: 50.0646501,
+      longitude: 19.9449799,
       floor: 3,
       floorCount: 5,
       buildingYear: 2018,

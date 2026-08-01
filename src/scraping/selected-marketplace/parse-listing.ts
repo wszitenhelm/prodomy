@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import type { ParsedMarketplaceListing } from "@/scraping/types";
 import type { MarketplaceParseContext } from "@/scraping/types";
 import { createExtractionWarning } from "@/scraping/types";
+import { extractSelectedMarketplaceCoordinatesFromPayload } from "@/scraping/selected-marketplace/coordinates";
 
 type LoadedCheerio = ReturnType<typeof import("cheerio").load>;
 type CheerioElement = Parameters<LoadedCheerio>[0];
@@ -274,6 +275,9 @@ export function parseSelectedMarketplaceListing(
   const photos = collectPhotoUrls(context);
   const sourceListingId = url.match(/(mzn\d+)/i)?.[1] ?? null;
   const transactionTypeHint = inferTransactionType(url);
+  const coordinates = extractSelectedMarketplaceCoordinatesFromPayload(
+    $("#__NUXT_DATA__").text(),
+  );
 
   if (title === null) {
     extractionWarnings.push(
@@ -312,6 +316,8 @@ export function parseSelectedMarketplaceListing(
     description,
     transactionTypeHint,
     locationText,
+    latitude: coordinates?.latitude ?? null,
+    longitude: coordinates?.longitude ?? null,
     priceText,
     attributes,
     rawAttributes,
@@ -321,11 +327,15 @@ export function parseSelectedMarketplaceListing(
     structuredData: {
       htmlTitle: getText($("title").text()),
       locationHeading: getText($(".page-details__location-row h2").first().text()),
+      latitude: coordinates?.latitude ?? null,
+      longitude: coordinates?.longitude ?? null,
       hasNuxtData: $("#__NUXT_DATA__").length > 0,
     },
     rawPayload: {
       htmlTitle: getText($("title").text()),
       locationText,
+      latitude: coordinates?.latitude ?? null,
+      longitude: coordinates?.longitude ?? null,
       highlightedParameters,
       informationTables,
       featureLists,

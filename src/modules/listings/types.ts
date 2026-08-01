@@ -40,6 +40,8 @@ export type ListingRecord = Prisma.ListingGetPayload<{
     city: true;
     district: true;
     street: true;
+    latitude: true;
+    longitude: true;
     floor: true;
     floorCount: true;
     buildingYear: true;

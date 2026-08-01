@@ -94,6 +94,8 @@ export function mapListingRecordToDetail(listing: ListingRecord): PublicListingD
     ...mapListingRecordToListItem(listing),
     description: listing.descriptionClean,
     aiSummary: parseListingAiSummary(listing.descriptionSummary),
+    latitude: listing.latitude?.toNumber() ?? null,
+    longitude: listing.longitude?.toNumber() ?? null,
     depositAmount: decimalToString(listing.depositAmount),
     utilitiesDescription: listing.utilitiesDescription,
     floorCount: listing.floorCount,

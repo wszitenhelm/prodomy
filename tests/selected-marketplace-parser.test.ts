@@ -60,6 +60,8 @@ describe("selectedMarketplaceAdapter", () => {
     expect(listing.title).toContain("Sprzedam");
     expect(listing.priceText).toContain("zł");
     expect(listing.locationText).toContain("Kraków");
+    expect(listing.latitude).toBeCloseTo(50.0844);
+    expect(listing.longitude).toBeCloseTo(19.9307);
     expect(listing.attributes["Pow. całkowita"]).toBe("30 m²");
     expect(listing.attributes["Rok budowy"]).toBe("1974");
     expect(listing.attributes["Udogodnienia"]).toEqual(
@@ -79,6 +81,8 @@ describe("selectedMarketplaceAdapter", () => {
     });
 
     expect(listing.transactionTypeHint).toBe("RENT");
+    expect(listing.latitude).toBeCloseTo(50.0792122);
+    expect(listing.longitude).toBeCloseTo(19.9368133);
     expect(listing.attributes["Depozyt za wynajem"]).toBe("9000");
     expect(listing.attributes["Dostępne od"]).toBe("01.08.2026");
     expect(listing.attributes["Media i instalacje"]).toEqual(
@@ -99,6 +103,8 @@ describe("selectedMarketplaceAdapter", () => {
 
     expect(listing.contactName).toBeNull();
     expect(listing.contactPhone).toBeNull();
+    expect(listing.latitude).toBeNull();
+    expect(listing.longitude).toBeNull();
     expect(listing.attributes["Pokoje"]).toBeUndefined();
     expect(listing.photos).toHaveLength(0);
     expect(listing.extractionWarnings.map((warning) => warning.code)).toEqual(["PHOTOS_MISSING"]);

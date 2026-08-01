@@ -25,6 +25,8 @@ const baseListing = {
   city: "Warszawa",
   district: "Wola",
   street: null,
+  latitude: null,
+  longitude: null,
   floor: 2,
   floorCount: 6,
   buildingYear: 2019,

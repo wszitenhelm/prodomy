@@ -123,6 +123,8 @@ export const normalizedListingSchema = z.object({
   city: z.string().trim().min(1).nullable(),
   district: z.string().trim().min(1).nullable(),
   street: z.string().trim().min(1).nullable(),
+  latitude: z.number().min(-90).max(90).nullable(),
+  longitude: z.number().min(-180).max(180).nullable(),
   floor: z.number().int().nullable(),
   floorCount: z.number().int().positive().nullable(),
   buildingYear: z.number().int().positive().nullable(),
@@ -223,6 +225,8 @@ export const publicListingListItemSchema = z.object({
 export const publicListingDetailSchema = publicListingListItemSchema.extend({
   description: z.string().trim().min(1).nullable(),
   aiSummary: listingAiSummarySchema.nullable(),
+  latitude: z.number().min(-90).max(90).nullable(),
+  longitude: z.number().min(-180).max(180).nullable(),
   depositAmount: decimalStringSchema.nullable(),
   utilitiesDescription: z.string().trim().min(1).nullable(),
   floorCount: z.number().int().nullable(),

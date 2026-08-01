@@ -33,6 +33,8 @@ model Listing {
   city               String?           @db.VarChar(191)
   district           String?           @db.VarChar(191)
   street             String?           @db.VarChar(191)
+  latitude           Decimal?          @db.Decimal(10, 7)
+  longitude          Decimal?          @db.Decimal(10, 7)
   floor              Int?
   floorCount         Int?
   buildingYear       Int?

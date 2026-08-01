@@ -412,6 +412,8 @@ export function normalizeRawListing(rawListing: RawSourceListing): NormalizedIng
     city: resolvedCity.value,
     district,
     street,
+    latitude: rawListing.latitude,
+    longitude: rawListing.longitude,
     floor:
       resolvedFloor.value === null ? null : (resolvedFloor.value as { floor: number | null }).floor,
     floorCount:

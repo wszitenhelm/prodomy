@@ -24,6 +24,8 @@ function createRawListing(overrides: Partial<RawSourceListing> = {}): RawSourceL
     description: "<p>Opis oferty</p><p>Opis oferty</p>",
     transactionTypeHint: "SALE",
     locationText: "Krakow, Krowodrza",
+    latitude: 50.0646501,
+    longitude: 19.9449799,
     priceText: "699 000 zł",
     attributes: {
       Powierzchnia: "52,7 m²",
@@ -117,6 +119,13 @@ describe("ingestion normalizers", () => {
   test("keeps missing values as null instead of zero", () => {
     expect(normalizeApartmentArea(null).value).toBeNull();
     expect(normalizeRoomCount(null).value).toBeNull();
+  });
+
+  test("preserves source-derived coordinates", () => {
+    const normalized = normalizeRawListing(createRawListing());
+
+    expect(normalized.latitude).toBe(50.0646501);
+    expect(normalized.longitude).toBe(19.9449799);
   });
 
   test.each([

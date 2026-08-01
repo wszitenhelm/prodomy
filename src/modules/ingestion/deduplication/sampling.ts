@@ -66,6 +66,8 @@ export function sampleRawCandidates(
     description: candidate.description,
     transactionTypeHint: candidate.transactionTypeHint,
     locationText: candidate.locationText,
+    latitude: candidate.latitude,
+    longitude: candidate.longitude,
     priceText: candidate.priceText,
     attributes: candidate.attributes,
     photos: candidate.photos,

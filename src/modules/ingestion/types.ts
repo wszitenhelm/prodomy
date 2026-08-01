@@ -101,6 +101,8 @@ export interface NormalizedIngestionListing {
   readonly city: string | null;
   readonly district: string | null;
   readonly street: string | null;
+  readonly latitude: number | null;
+  readonly longitude: number | null;
   readonly floor: number | null;
   readonly floorCount: number | null;
   readonly buildingYear?: number | null;

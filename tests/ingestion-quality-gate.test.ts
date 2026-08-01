@@ -24,6 +24,8 @@ function createListing(
     city: "Kraków",
     district: "Krowodrza",
     street: "ul. Wrocławska",
+    latitude: 50.0646501,
+    longitude: 19.9449799,
     floor: 3,
     floorCount: 5,
     hasBalcony: false,

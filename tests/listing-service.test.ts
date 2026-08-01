@@ -25,6 +25,8 @@ function createListingRecord(
     city: "Kraków",
     district: "Stare Miasto",
     street: "Dietla",
+    latitude: new Prisma.Decimal("50.0646501"),
+    longitude: new Prisma.Decimal("19.9449799"),
     floor: 3,
     floorCount: 5,
     buildingYear: 2018,

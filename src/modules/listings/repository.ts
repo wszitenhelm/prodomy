@@ -44,6 +44,8 @@ const publicListingSelect = {
   city: true,
   district: true,
   street: true,
+  latitude: true,
+  longitude: true,
   floor: true,
   floorCount: true,
   buildingYear: true,
