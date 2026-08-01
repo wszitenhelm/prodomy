@@ -10,6 +10,8 @@ Smart Real Estate Listings Platform MVP scaffold.
 cp .env.example .env
 ```
 
+The default `DATABASE_URL` uses `127.0.0.1` so Prisma connects over TCP consistently with local Homebrew MySQL.
+
 2. Start MySQL:
 
 ```bash
@@ -25,22 +27,28 @@ pnpm install
 4. Generate the Prisma client:
 
 ```bash
-pnpm prisma:generate
+pnpm db:generate
 ```
 
-5. Apply the initial migration:
+5. Apply the database migration:
 
 ```bash
 pnpm prisma:migrate
 ```
 
-6. Start the development server:
+6. Seed the local database with the deterministic sample dataset:
+
+```bash
+pnpm prisma:seed
+```
+
+7. Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-7. Run the placeholder ingestion CLI:
+8. Run the placeholder ingestion CLI:
 
 ```bash
 pnpm ingest
