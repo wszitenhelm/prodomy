@@ -12,6 +12,50 @@ import {
 } from "@/modules/listings/constants";
 import { decimalStringSchema } from "@/shared/utils/decimal";
 
+function emptyStringToUndefined(value: unknown): unknown {
+  if (typeof value === "string" && value.trim().length === 0) {
+    return undefined;
+  }
+
+  return value;
+}
+
+const optionalTrimmedStringSchema = z.preprocess(
+  emptyStringToUndefined,
+  z.string().trim().min(1).optional(),
+);
+
+const optionalPositiveIntSchema = z.preprocess(
+  emptyStringToUndefined,
+  z.coerce.number().int().positive().optional(),
+);
+
+const optionalPositiveNumberSchema = z.preprocess(
+  emptyStringToUndefined,
+  z.coerce.number().positive().optional(),
+);
+const optionalBooleanSchema = z.preprocess((value) => {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    if (value === "true" || value === "1" || value === "on") {
+      return true;
+    }
+
+    if (value === "false" || value === "0") {
+      return false;
+    }
+  }
+
+  return value;
+}, z.boolean().optional());
+
 export const listingIdSchema = z.string().trim().min(1);
 
 export const listingFeatureSchema = z.object({
@@ -80,22 +124,27 @@ export const normalizedListingSchema = z.object({
   features: z.array(listingFeatureSchema),
 });
 
-const listingSearchInputShape = {
-  q: z.string().trim().min(1).optional(),
-  transactionType: z.enum(transactionTypes).optional(),
-  city: z.string().trim().min(1).optional(),
-  district: z.string().trim().min(1).optional(),
-  minPrice: z.coerce.number().int().positive().optional(),
-  maxPrice: z.coerce.number().int().positive().optional(),
-  minArea: z.coerce.number().positive().optional(),
-  maxArea: z.coerce.number().positive().optional(),
-  rooms: z.coerce.number().int().positive().optional(),
-  page: z.coerce.number().int().positive().default(1),
-  pageSize: z.coerce.number().int().positive().max(50).default(20),
-  sort: z.enum(listingSortOptions).default("newest"),
-} satisfies z.ZodRawShape;
-
-const listingSearchInputBaseSchema = z.object(listingSearchInputShape);
+const listingSearchInputBaseSchema = z.object({
+  q: optionalTrimmedStringSchema,
+  transactionType: z.preprocess(
+    emptyStringToUndefined,
+    z.enum(transactionTypes).optional(),
+  ),
+  city: optionalTrimmedStringSchema,
+  district: optionalTrimmedStringSchema,
+  minPrice: optionalPositiveIntSchema,
+  maxPrice: optionalPositiveIntSchema,
+  minArea: optionalPositiveNumberSchema,
+  maxArea: optionalPositiveNumberSchema,
+  rooms: optionalPositiveIntSchema,
+  active: optionalBooleanSchema.default(true),
+  page: z.preprocess(emptyStringToUndefined, z.coerce.number().int().positive().default(1)),
+  pageSize: z.preprocess(
+    emptyStringToUndefined,
+    z.coerce.number().int().positive().max(50).default(20),
+  ),
+  sort: z.preprocess(emptyStringToUndefined, z.enum(listingSortOptions).default("newest")),
+});
 
 export const listingSearchInputSchema = listingSearchInputBaseSchema.superRefine(
   (value, context) => {
@@ -125,42 +174,60 @@ export const listingSearchInputSchema = listingSearchInputBaseSchema.superRefine
   },
 );
 
-export const listingListItemSchema = normalizedListingSchema.pick({
-  id: true,
-  source: true,
-  sourceUrl: true,
-  transactionType: true,
-  publicationStatus: true,
-  title: true,
-  priceAmount: true,
-  currency: true,
-  administrativeFee: true,
-  depositAmount: true,
-  areaM2: true,
-  rooms: true,
-  city: true,
-  district: true,
-  floor: true,
-  sourcePublishedAt: true,
-  isPrimary: true,
-  photos: true,
-  features: true,
+export const publicListingListItemSchema = z.object({
+  id: listingIdSchema,
+  title: z.string().trim().min(1),
+  transactionType: z.enum(transactionTypes),
+  source: z.enum(marketplaces),
+  sourceUrl: z.url(),
+  priceAmount: decimalStringSchema,
+  currency: z.enum(currencyCodes),
+  administrativeFee: decimalStringSchema.nullable(),
+  pricePerSquareMetre: decimalStringSchema.nullable(),
+  areaM2: decimalStringSchema,
+  rooms: z.number().int().positive().nullable(),
+  city: z.string().trim().min(1),
+  district: z.string().trim().min(1).nullable(),
+  street: z.string().trim().min(1).nullable(),
+  floor: z.number().int().nullable(),
+  publishedAt: z.string().datetime().nullable(),
+  photo: listingPhotoSchema.nullable(),
+});
+
+export const publicListingDetailSchema = publicListingListItemSchema.extend({
+  description: z.string().trim().min(1).nullable(),
+  depositAmount: decimalStringSchema.nullable(),
+  utilitiesDescription: z.string().trim().min(1).nullable(),
+  floorCount: z.number().int().nullable(),
+  buildingYear: z.number().int().positive().nullable(),
+  marketType: z.string().trim().min(1).nullable(),
+  ownershipType: z.string().trim().min(1).nullable(),
+  buildingType: z.string().trim().min(1).nullable(),
+  condition: z.string().trim().min(1).nullable(),
+  sellerType: z.string().trim().min(1).nullable(),
+  contactName: z.string().trim().min(1).nullable(),
+  contactPhone: z.string().trim().min(1).nullable(),
+  availableFrom: z.string().datetime().nullable(),
+  updatedAt: z.string().datetime().nullable(),
+  photos: z.array(listingPhotoSchema),
+  features: z.array(listingFeatureSchema),
 });
 
 export const paginatedListingResponseSchema = z.object({
-  items: z.array(listingListItemSchema),
+  items: z.array(publicListingListItemSchema),
   pagination: z.object({
     page: z.number().int().positive(),
     pageSize: z.number().int().positive().max(50),
     total: z.number().int().nonnegative(),
     totalPages: z.number().int().nonnegative(),
   }),
-  appliedFilters: listingSearchInputBaseSchema.partial(),
+  appliedFilters: listingSearchInputBaseSchema,
 });
 
 export type ListingFeature = z.infer<typeof listingFeatureSchema>;
 export type ListingPhoto = z.infer<typeof listingPhotoSchema>;
 export type NormalizedListing = z.infer<typeof normalizedListingSchema>;
 export type ListingSearchInput = z.infer<typeof listingSearchInputSchema>;
-export type ListingListItem = z.infer<typeof listingListItemSchema>;
+export type PublicListingListItem = z.infer<typeof publicListingListItemSchema>;
+export type PublicListingDetail = z.infer<typeof publicListingDetailSchema>;
 export type PaginatedListingResponse = z.infer<typeof paginatedListingResponseSchema>;

@@ -1,23 +1,89 @@
+import type { Prisma } from "@prisma/client";
+
 import type {
-  ListingListItem,
+  ListingFeature,
+  ListingPhoto,
   ListingSearchInput,
-  NormalizedListing,
   PaginatedListingResponse,
+  PublicListingDetail,
+  PublicListingListItem,
 } from "@/modules/listings/schemas";
-import type { RawSourceListing } from "@/modules/ingestion/schemas";
 
-export interface ListingSummary {
-  readonly id: string;
-}
-
-export interface ListingDetail {
-  readonly id: string;
-}
-
-export interface ListingIndexResult {
+export interface ListingRepositoryListResult {
   readonly total: number;
-  readonly items: ListingSummary[];
-  readonly message: string;
+  readonly items: ListingRecord[];
 }
 
-export type { ListingListItem, ListingSearchInput, NormalizedListing, PaginatedListingResponse, RawSourceListing };
+export interface ListingRepository {
+  findPublicListings(input: ListingSearchInput): Promise<ListingRepositoryListResult>;
+  findPublicListingById(id: string): Promise<ListingRecord | null>;
+}
+
+export type ListingIndexResult = PaginatedListingResponse;
+
+export type ListingRecord = Prisma.ListingGetPayload<{
+  select: {
+    id: true;
+    source: true;
+    sourceUrl: true;
+    transactionType: true;
+    title: true;
+    descriptionClean: true;
+    priceAmount: true;
+    currency: true;
+    administrativeFee: true;
+    depositAmount: true;
+    utilitiesDescription: true;
+    areaM2: true;
+    rooms: true;
+    city: true;
+    district: true;
+    street: true;
+    floor: true;
+    floorCount: true;
+    buildingYear: true;
+    marketType: true;
+    ownershipType: true;
+    buildingType: true;
+    condition: true;
+    sellerType: true;
+    availableFrom: true;
+    sourcePublishedAt: true;
+    sourceUpdatedAt: true;
+    contactName: true;
+    contactPhone: true;
+    createdAt: true;
+    photos: {
+      orderBy: {
+        position: "asc";
+      };
+      select: {
+        url: true;
+        position: true;
+        isPrimary: true;
+      };
+    };
+    features: {
+      orderBy: {
+        key: "asc";
+      };
+      select: {
+        key: true;
+        valueType: true;
+        booleanValue: true;
+        numberValue: true;
+        textValue: true;
+        rawValue: true;
+      };
+    };
+  };
+}>;
+
+export type {
+  ListingFeature,
+  ListingPhoto,
+  ListingSearchInput,
+  PaginatedListingResponse,
+  PublicListingDetail,
+  PublicListingListItem,
+};

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
-import { listingIdSchema } from "@/modules/listings/schemas";
+import { listingIdSchema, publicListingDetailSchema } from "@/modules/listings/schemas";
 import { getListingDetail } from "@/modules/listings/service";
 
 interface ListingRouteProps {
@@ -13,39 +14,48 @@ export async function GET(
   _request: Request,
   { params }: ListingRouteProps,
 ): Promise<Response> {
-  const parsedParams = listingIdSchema.safeParse((await params).id);
+  try {
+    const parsedParams = listingIdSchema.parse((await params).id);
+    const listing = await getListingDetail(parsedParams);
 
-  if (!parsedParams.success) {
+    if (listing === null) {
+      return NextResponse.json(
+        {
+          message: "Listing not found.",
+        },
+        {
+          status: 404,
+        },
+      );
+    }
+
+    const response = publicListingDetailSchema.parse(listing);
+
+    return NextResponse.json(
+      response,
+      {
+        status: 200,
+      },
+    );
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          message: "Invalid listing identifier.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     return NextResponse.json(
       {
-        message: "Invalid listing identifier.",
+        message: "Failed to load listing details.",
       },
       {
-        status: 400,
+        status: 500,
       },
     );
   }
-
-  const listing = await getListingDetail(parsedParams.data);
-
-  if (!listing) {
-    return NextResponse.json(
-      {
-        message: "Listing not found.",
-      },
-      {
-        status: 404,
-      },
-    );
-  }
-
-  return NextResponse.json(
-    {
-      id: listing.id,
-      message: "Listing details are not implemented in the repository-foundation stage.",
-    },
-    {
-      status: 200,
-    },
-  );
 }
