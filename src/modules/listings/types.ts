@@ -29,6 +29,7 @@ export type ListingRecord = Prisma.ListingGetPayload<{
     transactionType: true;
     title: true;
     descriptionClean: true;
+    descriptionSummary: true;
     priceAmount: true;
     currency: true;
     administrativeFee: true;

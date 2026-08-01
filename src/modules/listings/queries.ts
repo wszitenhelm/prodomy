@@ -12,6 +12,7 @@ export function parseListingSearchParams(searchParams: URLSearchParams): Listing
     minArea: searchParams.get("minArea") ?? undefined,
     maxArea: searchParams.get("maxArea") ?? undefined,
     rooms: searchParams.get("rooms") ?? undefined,
+    features: searchParams.getAll("features"),
     active: searchParams.get("active") ?? undefined,
     page: searchParams.get("page") ?? undefined,
     pageSize: searchParams.get("pageSize") ?? undefined,
@@ -90,6 +91,12 @@ export function buildListingSearchHref(input: Partial<ListingSearchInput>): stri
     searchParams.set("rooms", String(input.rooms));
   }
 
+  if (input.features !== undefined) {
+    for (const feature of input.features) {
+      searchParams.append("features", feature);
+    }
+  }
+
   if (input.active !== undefined) {
     searchParams.set("active", String(input.active));
   }
@@ -109,4 +116,19 @@ export function buildListingSearchHref(input: Partial<ListingSearchInput>): stri
   const query = searchParams.toString();
 
   return query.length === 0 ? "/listings" : `/listings?${query}`;
+}
+
+export function toggleStringListValue(
+  values: readonly string[] | undefined,
+  value: string,
+): string[] | undefined {
+  const currentValues = values ?? [];
+
+  if (currentValues.includes(value)) {
+    const nextValues = currentValues.filter((item) => item !== value);
+
+    return nextValues.length > 0 ? nextValues : undefined;
+  }
+
+  return [...currentValues, value];
 }

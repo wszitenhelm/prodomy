@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildListingSearchHref,
   parseListingSearchParams,
+  toggleStringListValue,
 } from "@/modules/listings/queries";
 
 describe("listing query parsing", () => {
@@ -29,6 +30,7 @@ describe("listing query parsing", () => {
         minArea: "35.5",
         maxArea: "70",
         rooms: "2",
+        features: "BALCONY",
         page: "3",
         pageSize: "10",
         sort: "price_asc",
@@ -45,6 +47,7 @@ describe("listing query parsing", () => {
       minArea: 35.5,
       maxArea: 70,
       rooms: 2,
+      features: ["BALCONY"],
       active: true,
       page: 3,
       pageSize: 10,
@@ -61,6 +64,18 @@ describe("listing query parsing", () => {
     );
 
     expect(parsed.city).toEqual(["Kraków", "Wrocław"]);
+  });
+
+  it("parses and serializes repeated amenity filters", () => {
+    const parsed = parseListingSearchParams(
+      new URLSearchParams([
+        ["features", "BALCONY"],
+        ["features", "ELEVATOR"],
+      ]),
+    );
+
+    expect(parsed.features).toEqual(["BALCONY", "ELEVATOR"]);
+    expect(buildListingSearchHref(parsed)).toContain("features=BALCONY&features=ELEVATOR");
   });
 
   it("preserves filters in pagination hrefs and omits reset defaults", () => {
@@ -96,6 +111,13 @@ describe("listing query parsing", () => {
         sort: "newest",
       }),
     ).toBe("/listings?city=Krak%C3%B3w&city=Wroc%C5%82aw&active=true");
+  });
+
+  it("toggles a city in and out of a repeated city filter list", () => {
+    expect(toggleStringListValue(undefined, "Kraków")).toEqual(["Kraków"]);
+    expect(toggleStringListValue(["Kraków"], "Wrocław")).toEqual(["Kraków", "Wrocław"]);
+    expect(toggleStringListValue(["Kraków", "Wrocław"], "Kraków")).toEqual(["Wrocław"]);
+    expect(toggleStringListValue(["Kraków"], "Kraków")).toBeUndefined();
   });
 
   it("rejects an oversized page size", () => {

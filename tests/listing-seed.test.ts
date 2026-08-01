@@ -35,4 +35,19 @@ describe("listing seed dataset", () => {
     expect(publicListings.every((listing) => listing.areaM2 !== null)).toBe(true);
     expect(publicListings.every((listing) => listing.photos.length > 0)).toBe(true);
   });
+
+  test("includes a result for the natural-language search demo", () => {
+    const matchingListings = createSeedDataset().listings.filter(
+      (listing) =>
+        listing.publicationStatus === "PUBLISHED" &&
+        listing.isPrimary &&
+        listing.transactionType === "RENT" &&
+        listing.city === "Kraków" &&
+        Number(listing.areaM2) >= 25 &&
+        Number(listing.areaM2) <= 35 &&
+        listing.features.some((feature) => feature.key === "BALCONY"),
+    );
+
+    expect(matchingListings.length).toBeGreaterThan(0);
+  });
 });

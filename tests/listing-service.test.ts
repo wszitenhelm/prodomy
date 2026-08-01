@@ -14,6 +14,7 @@ function createListingRecord(
     transactionType: "SALE",
     title: "Nowe mieszkanie w centrum",
     descriptionClean: "Jasne mieszkanie w Krakowie.",
+    descriptionSummary: null,
     priceAmount: new Prisma.Decimal("750000.00"),
     currency: "PLN",
     administrativeFee: new Prisma.Decimal("850.00"),

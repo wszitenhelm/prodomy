@@ -21,7 +21,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "node --env-file=.env --import tsx prisma/seed.ts",
-    "ingest": "node --env-file=.env --import tsx scripts/ingest.ts"
+    "ingest": "node --env-file=.env --import tsx scripts/ingest.ts",
+    "ai:backfill": "node --env-file=.env --import tsx scripts/backfill-ai-summaries.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

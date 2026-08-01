@@ -1,3 +1,4 @@
+import { summarizeListingDescription } from "@/modules/ingestion/ai/summarize-description";
 import {
   areExactDuplicates,
   generateProbableDuplicateCandidates,
@@ -178,6 +179,23 @@ export async function runIngestion(
         continue;
       }
 
+      // Only worth the API call for listings that will actually be public;
+      // rejected/needs-review/non-primary-duplicate records are never shown.
+      const descriptionSummary =
+        assignment.publicationStatus === "PUBLISHED"
+          ? await summarizeListingDescription({
+              title: listing.title,
+              transactionType: listing.transactionType,
+              priceAmount: listing.priceAmount,
+              currency: listing.currency,
+              areaM2: listing.areaM2,
+              rooms: listing.rooms,
+              city: listing.city,
+              district: listing.district,
+              descriptionClean: listing.descriptionClean,
+            })
+          : null;
+
       const persistedResult = await repository.persistListing({
         importRunId: importRun.id,
         listing,
@@ -186,6 +204,7 @@ export async function runIngestion(
         duplicateGroupId: assignment.duplicateGroupId,
         isPrimary: assignment.isPrimary,
         duplicateScore: assignment.duplicateScore,
+        descriptionSummary,
       });
 
       persistedResults.push(persistedResult);

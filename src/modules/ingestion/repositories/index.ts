@@ -92,6 +92,7 @@ export function createIngestionRepository(
     readonly duplicateGroupId: string | null;
     readonly isPrimary: boolean;
     readonly duplicateScore: DuplicateScore | null;
+    readonly descriptionSummary: string | null;
   }) => Promise<PersistedIngestionResult>;
   recordImportIssue: (input: {
     readonly importRunId: string;
@@ -146,6 +147,7 @@ export function createIngestionRepository(
           title: input.listing.title,
           descriptionRaw: input.listing.descriptionRaw,
           descriptionClean: input.listing.descriptionClean,
+          descriptionSummary: input.descriptionSummary,
           priceAmount: toDecimal(input.listing.priceAmount),
           currency: input.listing.currency,
           administrativeFee: getNumericAttribute(input.listing.rawAttributes, "Czynsz"),
@@ -203,6 +205,7 @@ export function createIngestionRepository(
           title: input.listing.title,
           descriptionRaw: input.listing.descriptionRaw,
           descriptionClean: input.listing.descriptionClean,
+          descriptionSummary: input.descriptionSummary,
           priceAmount: toDecimal(input.listing.priceAmount),
           currency: input.listing.currency,
           administrativeFee: getNumericAttribute(input.listing.rawAttributes, "Czynsz"),

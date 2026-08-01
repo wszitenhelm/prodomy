@@ -88,7 +88,7 @@ Important boundaries:
 
 ## AI status
 
-AI is not implemented in the MVP. This is deliberate: the core acceptance criteria around crawling, normalization, quality gates, deduplication, search, and details pages take priority. Vague-intent discovery is documented below as a future product journey, not as shipped AI behavior.
+AI-assisted listing summaries are implemented as an optional ingestion-time feature. When `GEMINI_API_KEY` is configured, published listings can receive a short structured summary generated from the normalized description and stored with the listing record. When the key is absent or the model response fails validation, ingestion falls back to deterministic fields only.
 
 ## Local setup
 

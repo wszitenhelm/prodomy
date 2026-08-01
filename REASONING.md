@@ -10,7 +10,7 @@ Marketplace pages are inconsistent, so the ingestion flow preserves raw payloads
 
 ## AI decision
 
-AI is intentionally not implemented in the MVP. The core criteria already require reproducible crawling, normalization, quality control, deduplication, public search, and details pages. Adding AI before those foundations would increase ambiguity and make debugging harder. The README includes a vague-intent user journey, but it is documented as a future opportunity rather than a shipped feature.
+AI is kept narrow and optional. The core MVP remains deterministic for crawling, normalization, quality control, deduplication, public search, and details pages; the only model-assisted step is an ingestion-time listing summary for already-published records. That summary is validated with Zod, stored separately from core numeric fields, and omitted entirely when the model is unavailable or returns an invalid structure.
 
 ## One key assumption
 

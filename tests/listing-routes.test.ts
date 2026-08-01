@@ -84,6 +84,65 @@ describe("GET /api/listings", () => {
   });
 });
 
+describe("GET /api/listings/natural-search", () => {
+  it("redirects a natural query to parsed listing filters", async () => {
+    vi.doMock("@/modules/listings/ai/parse-natural-search", () => ({
+      parseNaturalListingSearch: vi.fn().mockResolvedValue({
+        transactionType: "RENT",
+        city: ["Kraków"],
+      }),
+    }));
+
+    const { GET } = await import("@/app/api/listings/natural-search/route");
+    const response = await GET(
+      new Request(
+        "http://localhost/api/listings/natural-search?query=chce%20wynaj%C4%85%C4%87%20mieszkanie%20w%20Krakowie",
+      ),
+    );
+    const location = response.headers.get("location");
+
+    expect(response.status).toBe(307);
+    expect(location).toContain("transactionType=RENT");
+    expect(location).toContain("city=Krak%C3%B3w");
+    expect(location).toContain("naturalQuery=chce+");
+  });
+
+  it("preserves explicit filters when the natural query is blank", async () => {
+    const { GET } = await import("@/app/api/listings/natural-search/route");
+    const response = await GET(
+      new Request(
+        "http://localhost/api/listings/natural-search?query=&city=Gda%C5%84sk&maxPrice=5000",
+      ),
+    );
+    const location = response.headers.get("location");
+
+    expect(response.status).toBe(307);
+    expect(location).toContain("city=Gda%C5%84sk");
+    expect(location).toContain("maxPrice=5000");
+  });
+
+  it("does not let stale explicit filters override a changed natural query", async () => {
+    vi.doMock("@/modules/listings/ai/parse-natural-search", () => ({
+      parseNaturalListingSearch: vi.fn().mockResolvedValue({
+        transactionType: "RENT",
+        city: ["Wrocław"],
+      }),
+    }));
+
+    const { GET } = await import("@/app/api/listings/natural-search/route");
+    const response = await GET(
+      new Request(
+        "http://localhost/api/listings/natural-search?query=wynajem+we+Wroc%C5%82awiu&previousNaturalQuery=wynajem+w+Krakowie&city=Krak%C3%B3w&features=BALCONY",
+      ),
+    );
+    const location = response.headers.get("location");
+
+    expect(location).toContain("city=Wroc%C5%82aw");
+    expect(location).not.toContain("city=Krak%C3%B3w");
+    expect(location).not.toContain("features=BALCONY");
+  });
+});
+
 describe("GET /api/listings/[id]", () => {
   it("returns 400 for an invalid identifier", async () => {
     const { GET } = await import("@/app/api/listings/[id]/route");
@@ -134,6 +193,7 @@ describe("GET /api/listings/[id]", () => {
           isPrimary: true,
         },
         description: "Przestronne mieszkanie.",
+        aiSummary: null,
         depositAmount: null,
         utilitiesDescription: null,
         floorCount: 4,

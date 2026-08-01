@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { listingAiSummarySchema } from "@/modules/listings/ai-summary";
 import {
   currencyCodes,
   featureValueTypes,
@@ -47,6 +48,16 @@ const optionalStringListSchema = z.preprocess((value) => {
 
   return cleaned.length === 0 ? undefined : cleaned;
 }, z.array(z.string().trim().min(1)).optional());
+
+const optionalFeatureListSchema = z.preprocess((value) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  const values = Array.isArray(value) ? value : [value];
+
+  return values.length === 0 ? undefined : values;
+}, z.array(z.enum(listingFeatureKeys)).optional());
 
 const optionalBooleanSchema = z.preprocess((value) => {
   if (value === undefined || value === null || value === "") {
@@ -151,6 +162,7 @@ const listingSearchInputBaseSchema = z.object({
   minArea: optionalPositiveNumberSchema,
   maxArea: optionalPositiveNumberSchema,
   rooms: optionalPositiveIntSchema,
+  features: optionalFeatureListSchema,
   active: optionalBooleanSchema.default(true),
   page: z.preprocess(emptyStringToUndefined, z.coerce.number().int().positive().default(1)),
   pageSize: z.preprocess(
@@ -210,6 +222,7 @@ export const publicListingListItemSchema = z.object({
 
 export const publicListingDetailSchema = publicListingListItemSchema.extend({
   description: z.string().trim().min(1).nullable(),
+  aiSummary: listingAiSummarySchema.nullable(),
   depositAmount: decimalStringSchema.nullable(),
   utilitiesDescription: z.string().trim().min(1).nullable(),
   floorCount: z.number().int().nullable(),

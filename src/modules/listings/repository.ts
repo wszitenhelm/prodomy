@@ -1,6 +1,7 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 import { prisma } from "@/db/prisma";
+import type { ListingFeatureKey } from "@/modules/listings/constants";
 import type {
   ListingRecord,
   ListingRepository,
@@ -10,6 +11,21 @@ import type {
 
 type ListingDelegate = PrismaClient["listing"];
 
+const featureSearchTerms: Record<ListingFeatureKey, readonly string[]> = {
+  BALCONY: ["balkon"],
+  ELEVATOR: ["winda"],
+  PARKING: ["parking", "miejsce postojowe"],
+  GARAGE: ["garaż", "garaz"],
+  TERRACE: ["taras"],
+  GARDEN: ["ogród", "ogrod"],
+  FURNISHED: ["umeblowan"],
+  PET_FRIENDLY: ["zwierzę", "zwierzet"],
+  AIR_CONDITIONING: ["klimatyzac"],
+  STORAGE_ROOM: ["komórka lokatorska", "komorka lokatorska"],
+  SECURITY: ["ochrona"],
+  GATED_PROPERTY: ["osiedle zamknięte", "osiedle zamkniete"],
+};
+
 const publicListingSelect = {
   id: true,
   source: true,
@@ -17,6 +33,7 @@ const publicListingSelect = {
   transactionType: true,
   title: true,
   descriptionClean: true,
+  descriptionSummary: true,
   priceAmount: true,
   currency: true,
   administrativeFee: true,
@@ -113,6 +130,31 @@ function buildPublicListingWhere(input: ListingSearchInput): Prisma.ListingWhere
       gte: input.minArea,
       lte: input.maxArea,
     };
+  }
+
+  if (input.features !== undefined) {
+    for (const feature of input.features) {
+      const textConditions: Prisma.ListingWhereInput[] = featureSearchTerms[feature].flatMap(
+        (term) => [
+          { title: { contains: term } },
+          { descriptionClean: { contains: term } },
+        ],
+      );
+
+      andConditions.push({
+        OR: [
+          {
+            features: {
+              some: {
+                key: feature,
+                booleanValue: true,
+              },
+            },
+          },
+          ...textConditions,
+        ],
+      });
+    }
   }
 
   if (andConditions.length > 0) {

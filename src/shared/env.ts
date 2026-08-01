@@ -45,6 +45,8 @@ const envSchema = z.object({
   INGESTION_BROWSER_TIMEOUT_MS: z.coerce.number().int().positive(),
   INGESTION_MAX_REQUEST_ATTEMPTS: z.coerce.number().int().positive(),
   INGESTION_USER_AGENT: z.string().min(1),
+  GEMINI_API_KEY: z.string().min(1).optional(),
+  GEMINI_MODEL: z.string().min(1).default("gemini-3.1-flash-lite"),
 });
 
 export const env = envSchema.parse({
@@ -64,6 +66,8 @@ export const env = envSchema.parse({
   INGESTION_BROWSER_TIMEOUT_MS: process.env.INGESTION_BROWSER_TIMEOUT_MS,
   INGESTION_MAX_REQUEST_ATTEMPTS: process.env.INGESTION_MAX_REQUEST_ATTEMPTS,
   INGESTION_USER_AGENT: process.env.INGESTION_USER_AGENT,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  GEMINI_MODEL: process.env.GEMINI_MODEL,
 });
 
 export type Env = typeof env;

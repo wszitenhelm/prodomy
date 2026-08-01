@@ -1,5 +1,6 @@
 import type { Decimal } from "@prisma/client/runtime/library";
 
+import { parseListingAiSummary } from "@/modules/listings/ai-summary";
 import type {
   ListingFeature,
   ListingPhoto,
@@ -92,6 +93,7 @@ export function mapListingRecordToDetail(listing: ListingRecord): PublicListingD
   return {
     ...mapListingRecordToListItem(listing),
     description: listing.descriptionClean,
+    aiSummary: parseListingAiSummary(listing.descriptionSummary),
     depositAmount: decimalToString(listing.depositAmount),
     utilitiesDescription: listing.utilitiesDescription,
     floorCount: listing.floorCount,

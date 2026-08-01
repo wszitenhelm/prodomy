@@ -264,25 +264,18 @@ function createFeatureRecords(
   }));
 }
 
-const placeholderPhotoBaseUrl = (() => {
-  const svg =
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 3">' +
-    '<rect width="4" height="3" fill="#e4e9e2"/>' +
-    '<circle cx="2" cy="1.3" r="0.6" fill="#8fa088"/>' +
-    "</svg>";
-
-  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-})();
-
-function createPlaceholderPhotoUrl(photoKey: string): string {
-  // The fragment is ignored when rendering the data URI; it only keeps the
-  // (listingId, url) pair unique across a listing's placeholder photos.
-  return `${placeholderPhotoBaseUrl}#${photoKey}`;
-}
+const seedPhotoPool = [
+  "https://d-gr.cdngr.pl/kadry/k/r/gr-ogl/94/7b/48467451_1540435875_mieszkanie-krakow-krowodrza-ul-krowoderskich-zuchow.jpg",
+  "https://d-gr.cdngr.pl/kadry/k/r/gr-ogl/94/7b/48467451_1540435879_mieszkanie-krakow-krowodrza-ul-krowoderskich-zuchow.jpg",
+  "https://d-gr.cdngr.pl/kadry/k/r/gr-ogl/20/05/48467447_1540435781_mieszkanie-krakow-krowodrza-ul-zbozowa.jpg",
+  "https://d-gr.cdngr.pl/kadry/k/r/gr-ogl/20/05/48467447_1540435795_mieszkanie-krakow-krowodrza-ul-zbozowa.jpg",
+] as const;
 
 function createPhotos(sourceListingId: string, count: number): SeedPhotoRecord[] {
+  const startIndex = createHash(sourceListingId) % seedPhotoPool.length;
+
   return Array.from({ length: count }, (_, index) => ({
-    url: createPlaceholderPhotoUrl(`${sourceListingId}-${index + 1}`),
+    url: `${seedPhotoPool[(startIndex + index) % seedPhotoPool.length] ?? seedPhotoPool[0]}#${sourceListingId}-${index + 1}`,
     position: index,
     isPrimary: index === 0,
   }));
@@ -323,7 +316,21 @@ function createPublishedPrimaryListing(
   const scrapedAt = buildIsoDate(index + 34 + Math.floor(rng() * 8), 13);
   const titlePrefix = transactionType === "SALE" ? "Na sprzedaż" : "Do wynajęcia";
   const sellerType = rng() < 0.62 ? "biuro nieruchomości" : "osoba prywatna";
-  const features = createFeatureRecords(transactionType, rng);
+  const generatedFeatures = createFeatureRecords(transactionType, rng);
+  // Keep one deterministic listing for the natural-search acceptance example:
+  // a roughly 30 m² Kraków rental with a balcony.
+  const features =
+    cityDefinition.city === "Kraków" && transactionType === "RENT" && index === 10
+      ? [
+          ...generatedFeatures.slice(0, -1),
+          {
+            key: "BALCONY" as const,
+            valueType: "BOOLEAN" as const,
+            booleanValue: true,
+            rawValue: "tak",
+          },
+        ]
+      : generatedFeatures;
   const photos = createPhotos(sourceListingId, 3 + Math.floor(rng() * 3));
 
   return {

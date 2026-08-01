@@ -83,6 +83,33 @@ describe("listing repository", () => {
     });
   });
 
+  it("requires every requested amenity", () => {
+    const where = buildPublicListingWhere({
+      features: ["BALCONY", "ELEVATOR"],
+      active: true,
+      page: 1,
+      pageSize: 20,
+      sort: "newest",
+    });
+
+    expect(where.AND).toEqual([
+      {
+        OR: [
+          { features: { some: { key: "BALCONY", booleanValue: true } } },
+          { title: { contains: "balkon" } },
+          { descriptionClean: { contains: "balkon" } },
+        ],
+      },
+      {
+        OR: [
+          { features: { some: { key: "ELEVATOR", booleanValue: true } } },
+          { title: { contains: "winda" } },
+          { descriptionClean: { contains: "winda" } },
+        ],
+      },
+    ]);
+  });
+
   it("builds combined filters together", () => {
     const where = buildPublicListingWhere({
       q: "centrum",
