@@ -352,6 +352,31 @@ export function normalizeCityName(
     : { value: capitalized, warning: "UNRECOGNIZED_CITY" };
 }
 
+export function extractDistrictFromLocationText(
+  input: string | null | undefined,
+  city: string | null,
+): string | null {
+  if (input === null || input === undefined || city === null) {
+    return null;
+  }
+
+  const cleaned = input.replace(/zobacz na mapie\s*$/i, "").trim();
+  const parts = cleaned
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  const normalizedCity = normalizePolishText(city);
+  const cityIndex = parts.findIndex((part) => normalizePolishText(part).includes(normalizedCity));
+
+  if (cityIndex === -1) {
+    return null;
+  }
+
+  const district = parts[cityIndex + 1];
+
+  return district !== undefined && district.length > 0 ? district : null;
+}
+
 export function normalizeDate(
   input: string | null | undefined,
 ): NormalizedScalarResult<string> {

@@ -131,7 +131,7 @@ export function formatFreshness(detail: Pick<PublicListingDetail, "updatedAt" | 
   }
 
   const date = new Date(source);
-  const now = new Date("2026-08-01T12:00:00.000Z");
+  const now = new Date();
   const diffDays = Math.round((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   return `Źródło zaktualizowano ${relativeFormatter.format(diffDays, "day")}`;

@@ -1,6 +1,7 @@
 export { cleanDescription, extractDescriptionRaw } from "@/modules/ingestion/normalize/description";
 export { normalizeRawListing } from "@/modules/ingestion/normalize/listing";
 export {
+  extractDistrictFromLocationText,
   normalizeApartmentArea,
   normalizeCityName,
   normalizeDate,

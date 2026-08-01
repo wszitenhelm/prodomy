@@ -264,9 +264,25 @@ function createFeatureRecords(
   }));
 }
 
+const placeholderPhotoBaseUrl = (() => {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 3">' +
+    '<rect width="4" height="3" fill="#e4e9e2"/>' +
+    '<circle cx="2" cy="1.3" r="0.6" fill="#8fa088"/>' +
+    "</svg>";
+
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+})();
+
+function createPlaceholderPhotoUrl(photoKey: string): string {
+  // The fragment is ignored when rendering the data URI; it only keeps the
+  // (listingId, url) pair unique across a listing's placeholder photos.
+  return `${placeholderPhotoBaseUrl}#${photoKey}`;
+}
+
 function createPhotos(sourceListingId: string, count: number): SeedPhotoRecord[] {
   return Array.from({ length: count }, (_, index) => ({
-    url: `https://images.prodomy.test/${sourceListingId}/${index + 1}.jpg`,
+    url: createPlaceholderPhotoUrl(`${sourceListingId}-${index + 1}`),
     position: index,
     isPrimary: index === 0,
   }));
@@ -394,10 +410,7 @@ function createDuplicateListing(primary: SeedListingRecord, sequence: number): S
     consistencyScore:
       primary.consistencyScore === null ? null : Math.max(55, primary.consistencyScore - 4),
     isPrimary: false,
-    photos: primary.photos.map((photo) => ({
-      ...photo,
-      url: photo.url.replace(primary.sourceListingId, duplicateSourceListingId),
-    })),
+    photos: createPhotos(duplicateSourceListingId, primary.photos.length),
   };
 }
 

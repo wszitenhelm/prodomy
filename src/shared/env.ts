@@ -17,7 +17,7 @@ const envSchema = z.object({
   INGESTION_SOURCE: z
     .string()
     .min(1)
-    .transform((value) => value.trim().toUpperCase()),
+    .transform((value) => value.trim().toUpperCase().replace(/[\s-]+/g, "_")),
   INGESTION_CITIES: z
     .string()
     .min(1)

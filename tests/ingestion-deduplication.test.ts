@@ -94,6 +94,39 @@ describe("deduplication logic", () => {
     expect(generateProbableDuplicateCandidates([left, right])).toHaveLength(0);
   });
 
+  test("does not treat different districts as duplicates even when an agency shares one contact phone", () => {
+    const left = createListing("listing-1", {
+      district: "Bronowice",
+      street: null,
+      contactPhone: "+48500000000",
+    });
+    const right = createListing("listing-2", {
+      sourceListingId: "listing-2",
+      sourceUrlCanonical: "https://example.test/listings/listing-2",
+      district: "Czyżyny",
+      street: null,
+      contactPhone: "+48500000000",
+      priceAmount: "705000.00",
+      areaM2: "52.1",
+    });
+
+    expect(generateProbableDuplicateCandidates([left, right])).toHaveLength(0);
+  });
+
+  test("does not treat listings with unknown location as duplicates by default", () => {
+    const left = createListing("listing-1", { district: null, street: null });
+    const right = createListing("listing-2", {
+      sourceListingId: "listing-2",
+      sourceUrlCanonical: "https://example.test/listings/listing-2",
+      district: null,
+      street: null,
+      priceAmount: "705000.00",
+      areaM2: "52.1",
+    });
+
+    expect(generateProbableDuplicateCandidates([left, right])).toHaveLength(0);
+  });
+
   test("selects the best primary listing transparently", () => {
     const primary = createListing("listing-1", {
       sourceUpdatedAt: "2026-07-20T00:00:00.000Z",

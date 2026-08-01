@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { cleanDescription, extractDescriptionRaw, normalizeRawListing } from "@/modules/ingestion/normalize";
 import {
+  extractDistrictFromLocationText,
   normalizeApartmentArea,
   normalizeCityName,
   normalizeDate,
@@ -113,6 +114,20 @@ describe("ingestion normalizers", () => {
   test("keeps missing values as null instead of zero", () => {
     expect(normalizeApartmentArea(null).value).toBeNull();
     expect(normalizeRoomCount(null).value).toBeNull();
+  });
+
+  test.each([
+    ["małopolskie, Kraków, Bieżanów-Prokocim, Prokocim Zobacz na mapie", "Kraków", "Bieżanów-Prokocim"],
+    ["Portowamałopolskie, Kraków, Podgórze, Zabłocie Zobacz na mapie", "Kraków", "Podgórze"],
+    ["Galicyjskamałopolskie, Kraków, Czyżyny Zobacz na mapie", "Kraków", "Czyżyny"],
+    ["małopolskie, Kraków, Swoszowice Zobacz na mapie", "Kraków", "Swoszowice"],
+  ])("extracts district from real marketplace location text %s", (locationText, city, expected) => {
+    expect(extractDistrictFromLocationText(locationText, city)).toBe(expected);
+  });
+
+  test("returns null district when the city cannot be located in the text", () => {
+    expect(extractDistrictFromLocationText("nieznany format", "Kraków")).toBeNull();
+    expect(extractDistrictFromLocationText(null, "Kraków")).toBeNull();
   });
 
   test("rejects malformed formats without inventing values", () => {

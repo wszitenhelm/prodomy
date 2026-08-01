@@ -10,6 +10,7 @@ import {
 } from "@/modules/listings/constants";
 import { cleanDescription, extractDescriptionRaw } from "@/modules/ingestion/normalize/description";
 import {
+  extractDistrictFromLocationText,
   normalizeApartmentArea,
   normalizeCityName,
   normalizeDate,
@@ -353,7 +354,8 @@ export function normalizeRawListing(rawListing: RawSourceListing): NormalizedIng
   const currency: CurrencyCode | null = resolvedPrice.value === null ? null : currencyCodes[0];
   const sourceUrlCanonical = canonicalizeUrl(rawListing.sourceUrl);
   const district =
-    typeof rawAttributes.Dzielnica === "string" ? rawAttributes.Dzielnica.trim() || null : null;
+    (typeof rawAttributes.Dzielnica === "string" ? rawAttributes.Dzielnica.trim() || null : null) ??
+    extractDistrictFromLocationText(rawListing.locationText, resolvedCity.value);
   const street =
     typeof rawAttributes.Ulica === "string" ? rawAttributes.Ulica.trim() || null : null;
 

@@ -90,14 +90,22 @@ export function generateProbableDuplicateCandidates(
         continue;
       }
 
-      if (
-        left.street !== null &&
-        right.street !== null &&
-        left.street !== right.street &&
-        left.district !== null &&
-        right.district !== null &&
-        left.district !== right.district
-      ) {
+      // Location compatibility must be confirmed, not merely "not disproven".
+      // Treating an unknown district as compatible lets union-find chain
+      // together listings that were never themselves scored as a match,
+      // through an unrelated intermediary whose district happens to be
+      // unknown. Since merging hides a listing from public search, it must
+      // require positive evidence rather than the absence of a conflict.
+      const districtsCompatible =
+        left.district !== null && right.district !== null && left.district === right.district;
+      const streetsCompatible =
+        left.street !== null && right.street !== null && left.street === right.street;
+
+      if (!districtsCompatible && !streetsCompatible) {
+        continue;
+      }
+
+      if (left.street !== null && right.street !== null && left.street !== right.street) {
         continue;
       }
 
