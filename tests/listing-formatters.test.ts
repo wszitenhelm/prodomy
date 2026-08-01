@@ -57,4 +57,11 @@ describe("listing frontend formatters", () => {
     expect(formatRooms(null)).toBeNull();
     expect(formatFloor(null)).toBeNull();
   });
+
+  it("describes the floor and the building height in Polish", () => {
+    expect(formatFloor(5, 6)).toBe("5. piętro w sześciopiętrowym bloku");
+    expect(formatFloor(0, 3)).toBe("Parter w trzypiętrowym bloku");
+    expect(formatFloor(2, null)).toBe("2. piętro");
+    expect(formatFloor(21, 25)).toBe("21. piętro w 25-piętrowym bloku");
+  });
 });

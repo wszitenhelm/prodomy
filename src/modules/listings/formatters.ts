@@ -23,6 +23,29 @@ const relativeFormatter = new Intl.RelativeTimeFormat("pl-PL", {
   numeric: "auto",
 });
 
+const buildingHeightLabels: Readonly<Record<number, string>> = {
+  1: "jednopiętrowym",
+  2: "dwupiętrowym",
+  3: "trzypiętrowym",
+  4: "czteropiętrowym",
+  5: "pięciopiętrowym",
+  6: "sześciopiętrowym",
+  7: "siedmiopiętrowym",
+  8: "ośmiopiętrowym",
+  9: "dziewięciopiętrowym",
+  10: "dziesięciopiętrowym",
+  11: "jedenastopiętrowym",
+  12: "dwunastopiętrowym",
+  13: "trzynastopiętrowym",
+  14: "czternastopiętrowym",
+  15: "piętnastopiętrowym",
+  16: "szesnastopiętrowym",
+  17: "siedemnastopiętrowym",
+  18: "osiemnastopiętrowym",
+  19: "dziewiętnastopiętrowym",
+  20: "dwudziestopiętrowym",
+};
+
 const featureLabels: Record<ListingFeature["key"], string> = {
   BALCONY: "Balkon",
   ELEVATOR: "Winda",
@@ -64,11 +87,15 @@ export function formatFloor(
     return null;
   }
 
-  if (floorCount !== undefined && floorCount !== null) {
-    return `${floor}/${floorCount} piętro`;
+  const floorLabel = floor === 0 ? "Parter" : `${floor}. piętro`;
+
+  if (floorCount !== undefined && floorCount !== null && floorCount > 0) {
+    const buildingHeight = buildingHeightLabels[floorCount] ?? `${floorCount}-piętrowym`;
+
+    return `${floorLabel} w ${buildingHeight} bloku`;
   }
 
-  return `${floor} piętro`;
+  return floorLabel;
 }
 
 export function formatTransactionType(

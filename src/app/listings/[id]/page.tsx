@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import * as React from "react";
 
 import { ListingGallery } from "@/modules/listings/components/listing-gallery";
 import {
   formatArea,
   formatCurrency,
   formatDate,
-  formatFeatureValue,
   formatFloor,
   formatFreshness,
   formatLocation,
@@ -82,6 +82,7 @@ export default async function ListingDetailPage({
             <DetailRow label="Metraż" value={formatArea(listing.areaM2)} />
             <DetailRow label="Pokoje" value={formatRooms(listing.rooms)} />
             <DetailRow label="Piętro" value={formatFloor(listing.floor, listing.floorCount)} />
+            <DetailRow label="Dodatkowe opłaty" value={listing.aiSummary?.additionalCosts ?? null} />
             <DetailRow label="Dostępne od" value={formatDate(listing.availableFrom)} />
             <DetailRow label="Kaucja" value={listing.depositAmount === null ? null : formatCurrency(listing.depositAmount)} />
             <DetailRow label="Czynsz adm." value={listing.administrativeFee === null ? null : formatCurrency(listing.administrativeFee)} />
@@ -89,6 +90,35 @@ export default async function ListingDetailPage({
         </section>
 
         <ListingGallery photos={listing.photos} title={listing.title} />
+
+        {listing.aiSummary !== null ? (
+          <section className="panel ai-summary">
+            <div className="ai-summary__header">
+              <h2>Podsumowanie</h2>
+            </div>
+
+            <div className="ai-summary__costs">
+              <div className="ai-summary__cost">
+                <span className="ai-summary__cost-label">Cena</span>
+                <span className="ai-summary__cost-value">{listing.aiSummary.mainCost}</span>
+              </div>
+              {listing.aiSummary.additionalCosts !== null ? (
+                <div className="ai-summary__cost ai-summary__cost--secondary">
+                  <span className="ai-summary__cost-label">Dodatkowe opłaty</span>
+                  <span className="ai-summary__cost-value">{listing.aiSummary.additionalCosts}</span>
+                </div>
+              ) : null}
+            </div>
+
+            <p className="ai-summary__text">{listing.aiSummary.summary}</p>
+
+            <ul className="ai-summary__highlights">
+              {listing.aiSummary.highlights.map((highlight) => (
+                <li key={highlight}>{highlight}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <section className="detail-grid">
           <section className="panel">
@@ -123,23 +153,19 @@ export default async function ListingDetailPage({
           </section>
         </section>
 
-        <section className="panel">
-          <h2>Wyposażenie i cechy</h2>
-          {listing.features.length === 0 ? (
-            <p className="muted">Brak dodatkowych cech w znormalizowanych danych.</p>
-          ) : (
-            <ul className="feature-list">
-              {listing.features.map((feature) => (
-                <li key={feature.key}>{formatFeatureValue(feature)}</li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="panel">
-          <h2>Opis</h2>
-          <p className="description">{listing.description ?? "Opis nie został udostępniony."}</p>
-        </section>
+        {listing.aiSummary === null ? (
+          <section className="panel">
+            <h2>Opis</h2>
+            <p className="description">{listing.description ?? "Opis nie został udostępniony."}</p>
+          </section>
+        ) : listing.description !== null ? (
+          <section className="panel source-description">
+            <details>
+              <summary>Pokaż pełny opis źródłowy</summary>
+              <p className="description">{listing.description}</p>
+            </details>
+          </section>
+        ) : null}
       </section>
     </main>
   );
