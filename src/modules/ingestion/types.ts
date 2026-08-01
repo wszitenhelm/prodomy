@@ -11,7 +11,19 @@ export interface IngestionRunInput {
 export interface IngestionRunSummary {
   readonly source: string;
   readonly cities: string[];
-  readonly status: "NOT_IMPLEMENTED";
+  readonly status: "COMPLETED" | "COMPLETED_WITH_ERRORS" | "FAILED";
+  readonly startedAt: string;
+  readonly finishedAt: string;
+  readonly candidatesDiscovered: number;
+  readonly pagesFetched: number;
+  readonly parsedCount: number;
+  readonly normalizedCount: number;
+  readonly publishedCount: number;
+  readonly rejectedCount: number;
+  readonly needsReviewCount: number;
+  readonly duplicateCount: number;
+  readonly failedCount: number;
+  readonly persistedCount: number;
 }
 
 export type NormalizationSource =

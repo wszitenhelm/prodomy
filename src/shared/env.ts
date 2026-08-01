@@ -1,10 +1,23 @@
 import { z } from "zod";
 
+const cityNameMap: Readonly<Record<string, string>> = {
+  krakow: "Kraków",
+  kraków: "Kraków",
+  warszawa: "Warszawa",
+  wroclaw: "Wrocław",
+  wrocław: "Wrocław",
+  gdansk: "Gdańsk",
+  gdańsk: "Gdańsk",
+};
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_BASE_URL: z.url(),
   DATABASE_URL: z.string().min(1),
-  INGESTION_SOURCE: z.string().min(1),
+  INGESTION_SOURCE: z
+    .string()
+    .min(1)
+    .transform((value) => value.trim().toUpperCase()),
   INGESTION_CITIES: z
     .string()
     .min(1)
@@ -13,6 +26,13 @@ const envSchema = z.object({
         .split(",")
         .map((item) => item.trim())
         .filter((item) => item.length > 0),
+    )
+    .transform((cities) =>
+      cities.map((city) => {
+        const mappedCity = cityNameMap[city.toLowerCase()];
+
+        return mappedCity ?? city;
+      }),
     ),
   INGESTION_TARGET_SALE: z.coerce.number().int().positive(),
   INGESTION_TARGET_RENT: z.coerce.number().int().positive(),

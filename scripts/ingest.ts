@@ -12,7 +12,16 @@ async function main(): Promise<void> {
     seed: env.INGESTION_SEED,
   });
 
-  console.info("Ingestion placeholder completed.", summary);
+  console.info(
+    JSON.stringify(
+      {
+        type: "ingestion-summary",
+        summary,
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main().catch((error: unknown) => {
