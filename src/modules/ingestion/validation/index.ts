@@ -1,3 +1,1 @@
-export function validatePlaceholder(): null {
-  return null;
-}
+export { evaluatePublicationQuality } from "@/modules/ingestion/validation/quality-gate";
