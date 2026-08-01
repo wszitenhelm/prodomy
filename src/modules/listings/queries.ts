@@ -5,7 +5,7 @@ export function parseListingSearchParams(searchParams: URLSearchParams): Listing
   return listingSearchInputSchema.parse({
     q: searchParams.get("q") ?? undefined,
     transactionType: searchParams.get("transactionType") ?? undefined,
-    city: searchParams.get("city") ?? undefined,
+    city: searchParams.getAll("city"),
     district: searchParams.get("district") ?? undefined,
     minPrice: searchParams.get("minPrice") ?? undefined,
     maxPrice: searchParams.get("maxPrice") ?? undefined,
@@ -26,10 +26,10 @@ export function createSearchParamsFromObject(
 
   for (const [key, value] of Object.entries(input)) {
     if (Array.isArray(value)) {
-      const first = value[0];
-
-      if (first !== undefined) {
-        searchParams.set(key, first);
+      for (const item of value) {
+        if (item !== undefined) {
+          searchParams.append(key, item);
+        }
       }
 
       continue;
@@ -61,7 +61,9 @@ export function buildListingSearchHref(input: Partial<ListingSearchInput>): stri
   }
 
   if (input.city !== undefined) {
-    searchParams.set("city", input.city);
+    for (const city of input.city) {
+      searchParams.append("city", city);
+    }
   }
 
   if (input.district !== undefined) {

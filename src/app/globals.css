@@ -131,14 +131,7 @@ textarea {
   transform: translateY(-1px);
 }
 
-.listings-layout {
-  display: grid;
-  gap: 1rem;
-}
-
 .filters-card {
-  position: sticky;
-  top: 1rem;
   padding: 1.25rem;
 }
 
@@ -160,6 +153,8 @@ textarea {
   border: 0;
   display: grid;
   gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: start;
 }
 
 .field {
@@ -196,21 +191,17 @@ textarea {
   grid-column: 1 / -1;
 }
 
-.checkbox-field {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 0.85rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface-muted);
+.field-range-group {
+  grid-column: span 2;
+  display: grid;
+  gap: 0.9rem;
+  min-width: 320px;
 }
 
-.checkbox-field input {
-  width: 1.1rem;
-  height: 1.1rem;
-  accent-color: var(--accent);
+.field-range-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
 }
 
 .segmented-control {
@@ -229,14 +220,16 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.75rem;
+  min-height: 2.9rem;
+  padding: 0.85rem 1rem;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: #fff;
-  font-size: 0.92rem;
+  font-size: 1.02rem;
+  font-weight: 600;
   text-align: center;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .segmented-control__option input:checked + span {
@@ -517,16 +510,141 @@ textarea {
   border: 0;
 }
 
+.listings-hero {
+  position: relative;
+  padding: 3.5rem 1rem 3.25rem;
+  color: #fff;
+  background-color: #17281f;
+  background-image:
+    linear-gradient(180deg, rgba(15, 33, 25, 0.72), rgba(15, 33, 25, 0.88)),
+    url("/hero-background.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.listings-hero__content {
+  max-width: 780px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.1rem;
+  text-align: center;
+}
+
+.listings-hero__eyebrow {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.listings-hero__title {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.listings-hero__subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.02rem;
+}
+
+.listings-hero__search {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+  text-align: left;
+  color: #173126;
+}
+
+.listings-hero__search input {
+  color: #173126;
+}
+
+.listings-hero__search-field input {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: #173126;
+}
+
+.listings-hero__submit {
+  width: 100%;
+}
+
+.listings-hero__cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 0.3rem;
+}
+
+.city-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.city-chip span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: #173126;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.city-chip:hover span,
+.city-chip input:focus-visible + span {
+  background: var(--accent-soft);
+  border-color: rgba(39, 93, 67, 0.4);
+}
+
+.city-chip input:checked + span {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .listings-hero__cities {
+    flex-basis: 100%;
+    order: 10;
+    margin-top: 0.9rem;
+  }
+
+  .listings-hero__search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .listings-hero__transaction {
+    flex: 0 0 auto;
+    min-width: 260px;
+  }
+
+  .listings-hero__search-field {
+    flex: 1 1 auto;
+  }
+
+  .listings-hero__submit {
+    flex: 0 0 auto;
+    width: auto;
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+  }
+}
+
 @media (min-width: 760px) {
-  .listings-layout {
-    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .filters-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .listings-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

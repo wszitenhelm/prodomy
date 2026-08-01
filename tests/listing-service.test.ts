@@ -80,7 +80,7 @@ describe("listing service", () => {
     const service = createListingService(repository);
 
     const result = await service.getListingIndex({
-      city: "Kraków",
+      city: ["Kraków"],
       active: true,
       page: 2,
       pageSize: 1,

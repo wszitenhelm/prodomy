@@ -91,6 +91,7 @@ export const normalizedIngestionListingSchema = z.object({
   street: z.string().trim().min(1).nullable(),
   floor: z.number().int().nullable(),
   floorCount: z.number().int().nullable(),
+  hasBalcony: z.boolean(),
   availableFrom: z.string().datetime().nullable(),
   sourcePublishedAt: z.string().datetime().nullable(),
   sourceUpdatedAt: z.string().datetime().nullable(),

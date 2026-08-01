@@ -91,25 +91,59 @@ function collectFeatureLists(
   return sections;
 }
 
+function decodeGalleryProxyUrl(source: string): string | null {
+  // The proxy URL shape is /thumb/<base64-original-url>/<transform>/<file>.
+  // A free-form regex over the whole string would over-match into the next
+  // path segment (`/` is itself a valid base64 character), decoding a few
+  // garbage trailing bytes onto an otherwise-correct URL and breaking it.
+  // Parsing the path and taking the segment right after "thumb" avoids that.
+  let pathname: string;
+
+  try {
+    pathname = new URL(source).pathname;
+  } catch {
+    return null;
+  }
+
+  const segments = pathname.split("/").filter((segment) => segment.length > 0);
+  const thumbIndex = segments.indexOf("thumb");
+  const encoded = thumbIndex === -1 ? undefined : segments[thumbIndex + 1];
+
+  if (encoded === undefined) {
+    return null;
+  }
+
+  try {
+    const decoded = Buffer.from(encoded, "base64").toString("utf8");
+
+    return decoded.startsWith("https://") ? decoded : null;
+  } catch {
+    return null;
+  }
+}
+
 function collectPhotoUrls(context: MarketplaceParseContext): string[] {
-  const { html } = context;
-  const matches = Array.from(
-    html.matchAll(/aHR0cHM6Ly9[0-9A-Za-z+/=]+/g),
-    (match) => match[0],
-  );
+  const $ = context.$ as LoadedCheerio;
   const urls = new Set<string>();
 
-  for (const encoded of matches) {
-    try {
-      const decoded = Buffer.from(encoded, "base64").toString("utf8");
+  // Scoped to this listing's own gallery only. Scanning the whole page for
+  // base64-encoded thumbnail URLs (Morizon's CDN proxy scheme) also matched
+  // thumbnails from unrelated "similar listings" widgets elsewhere on the
+  // page, producing hundreds of photos per listing that had nothing to do
+  // with it.
+  $(".details-gallery__img").each((_: number, element: CheerioElement) => {
+    const src = $(element).attr("src");
 
-      if (decoded.startsWith("https://")) {
-        urls.add(decoded);
-      }
-    } catch {
-      continue;
+    if (typeof src !== "string") {
+      return;
     }
-  }
+
+    const decoded = decodeGalleryProxyUrl(src);
+
+    if (decoded !== null) {
+      urls.add(decoded);
+    }
+  });
 
   return [...urls];
 }

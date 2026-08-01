@@ -26,6 +26,7 @@ function createListing(
     street: "ul. Wrocławska",
     floor: 3,
     floorCount: 5,
+    hasBalcony: false,
     availableFrom: null,
     sourcePublishedAt: "2026-07-15T00:00:00.000Z",
     sourceUpdatedAt: "2026-07-16T00:00:00.000Z",

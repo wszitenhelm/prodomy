@@ -90,7 +90,7 @@ function buildPublicListingWhere(input: ListingSearchInput): Prisma.ListingWhere
   }
 
   if (input.city !== undefined) {
-    where.city = { equals: input.city };
+    where.city = { in: input.city };
   }
 
   if (input.district !== undefined) {

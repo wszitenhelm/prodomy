@@ -358,6 +358,8 @@ export function normalizeRawListing(rawListing: RawSourceListing): NormalizedIng
     extractDistrictFromLocationText(rawListing.locationText, resolvedCity.value);
   const street =
     typeof rawAttributes.Ulica === "string" ? rawAttributes.Ulica.trim() || null : null;
+  const hasBalcony =
+    typeof rawAttributes.Balkon === "string" && rawAttributes.Balkon.trim().toLowerCase() === "tak";
 
   const fieldProvenanceEntries = [
       resolvedPrice.provenance,
@@ -416,6 +418,7 @@ export function normalizeRawListing(rawListing: RawSourceListing): NormalizedIng
       resolvedFloor.value === null
         ? null
         : (resolvedFloor.value as { floorCount: number | null }).floorCount,
+    hasBalcony,
     availableFrom: normalizeDate(
       typeof rawAttributes["Dostępne od"] === "string" ? rawAttributes["Dostępne od"] : null,
     ).value,

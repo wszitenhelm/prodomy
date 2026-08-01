@@ -34,6 +34,20 @@ const optionalPositiveNumberSchema = z.preprocess(
   emptyStringToUndefined,
   z.coerce.number().positive().optional(),
 );
+const optionalStringListSchema = z.preprocess((value) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  const values = Array.isArray(value) ? value : [value];
+  const cleaned = values
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+
+  return cleaned.length === 0 ? undefined : cleaned;
+}, z.array(z.string().trim().min(1)).optional());
+
 const optionalBooleanSchema = z.preprocess((value) => {
   if (value === undefined || value === null || value === "") {
     return undefined;
@@ -130,7 +144,7 @@ const listingSearchInputBaseSchema = z.object({
     emptyStringToUndefined,
     z.enum(transactionTypes).optional(),
   ),
-  city: optionalTrimmedStringSchema,
+  city: optionalStringListSchema,
   district: optionalTrimmedStringSchema,
   minPrice: optionalPositiveIntSchema,
   maxPrice: optionalPositiveIntSchema,

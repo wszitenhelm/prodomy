@@ -32,6 +32,7 @@ function createListing(
     street: "ul. Wrocławska",
     floor: 3,
     floorCount: 5,
+    hasBalcony: false,
     buildingYear: 2018,
     availableFrom: null,
     sourcePublishedAt: "2026-07-15T00:00:00.000Z",
@@ -64,13 +65,13 @@ describe("deduplication logic", () => {
     expect(areExactDuplicates(left, right)).toBe(true);
   });
 
-  test("generates probable duplicate candidates for similar listings", () => {
+  test("generates probable duplicate candidates for similar listings with the exact same area", () => {
     const left = createListing("listing-1");
     const right = createListing("listing-2", {
       sourceListingId: "listing-2",
       sourceUrlCanonical: "https://example.test/listings/listing-2",
       priceAmount: "705000.00",
-      areaM2: "52.1",
+      areaM2: "52.7",
     });
 
     const candidates = generateProbableDuplicateCandidates([left, right]);
@@ -80,6 +81,17 @@ describe("deduplication logic", () => {
 
     expect(candidate).toBeDefined();
     expect(scoreProbableDuplicate(candidate as NonNullable<typeof candidate>).isProbableDuplicate).toBe(true);
+  });
+
+  test("does not treat a near but non-identical area as a duplicate candidate", () => {
+    const left = createListing("listing-1");
+    const right = createListing("listing-2", {
+      sourceListingId: "listing-2",
+      sourceUrlCanonical: "https://example.test/listings/listing-2",
+      areaM2: "52.1",
+    });
+
+    expect(generateProbableDuplicateCandidates([left, right])).toHaveLength(0);
   });
 
   test("does not generate probable duplicate candidates for non-duplicates", () => {
@@ -125,6 +137,38 @@ describe("deduplication logic", () => {
     });
 
     expect(generateProbableDuplicateCandidates([left, right])).toHaveLength(0);
+  });
+
+  test("scores a shared balcony as supporting duplicate evidence", () => {
+    const left = createListing("listing-1", { hasBalcony: true });
+    const right = createListing("listing-2", {
+      sourceListingId: "listing-2",
+      sourceUrlCanonical: "https://example.test/listings/listing-2",
+      hasBalcony: true,
+    });
+    const withoutBalcony = createListing("listing-2", {
+      sourceListingId: "listing-2",
+      sourceUrlCanonical: "https://example.test/listings/listing-2",
+      hasBalcony: false,
+    });
+
+    const withBalconyScore = scoreProbableDuplicate({
+      leftId: left.sourceUrlCanonical,
+      rightId: right.sourceUrlCanonical,
+      left,
+      right,
+    });
+    const withoutBalconyScore = scoreProbableDuplicate({
+      leftId: left.sourceUrlCanonical,
+      rightId: withoutBalcony.sourceUrlCanonical,
+      left,
+      right: withoutBalcony,
+    });
+
+    expect(withBalconyScore.components.map((component) => component.code)).toContain(
+      "BALCONY_MATCH",
+    );
+    expect(withBalconyScore.score).toBeGreaterThan(withoutBalconyScore.score);
   });
 
   test("selects the best primary listing transparently", () => {

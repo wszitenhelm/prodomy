@@ -162,22 +162,30 @@ export function createCrawler(): ScrapingCrawler {
         ).values(),
       );
 
-      const orderedCandidates = input.cities.flatMap((city) =>
-        (["SALE", "RENT"] as const).flatMap((transactionType) =>
-          orderCandidatesDeterministically(
-            deduplicatedCandidates.filter(
-              (candidate) =>
-                candidate.city === city && candidate.transactionType === transactionType,
-            ).map((candidate) => ({
-              city: candidate.city,
-              transactionType: candidate.transactionType,
-              sourceUrl: candidate.url,
-              sourceListingId: candidate.sourceListingId,
-              url: candidate.url,
-            })),
-            input.seed,
-          ),
-        ),
+      // Cap each (city, transactionType) group independently instead of
+      // slicing the globally concatenated list: cities are processed in a
+      // fixed order, so a single global slice let the first city alone
+      // exhaust the whole candidate budget before later cities were ever
+      // sampled, leaving them entirely unrepresented in the published data.
+      const sampleGroups = input.cities.flatMap((city) =>
+        (["SALE", "RENT"] as const).map((transactionType) => ({ city, transactionType })),
+      );
+      const perGroupCap = Math.max(1, Math.ceil(input.maxCandidates / sampleGroups.length));
+
+      const orderedCandidates = sampleGroups.flatMap(({ city, transactionType }) =>
+        orderCandidatesDeterministically(
+          deduplicatedCandidates.filter(
+            (candidate) =>
+              candidate.city === city && candidate.transactionType === transactionType,
+          ).map((candidate) => ({
+            city: candidate.city,
+            transactionType: candidate.transactionType,
+            sourceUrl: candidate.url,
+            sourceListingId: candidate.sourceListingId,
+            url: candidate.url,
+          })),
+          input.seed,
+        ).slice(0, perGroupCap),
       );
 
       const limitedCandidates = orderedCandidates.slice(0, input.maxCandidates);

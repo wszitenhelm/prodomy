@@ -38,7 +38,7 @@ describe("listing query parsing", () => {
     expect(parsed).toEqual({
       q: "kazimierz",
       transactionType: "RENT",
-      city: "Kraków",
+      city: ["Kraków"],
       district: "Stare Miasto",
       minPrice: 2500,
       maxPrice: 4500,
@@ -52,11 +52,22 @@ describe("listing query parsing", () => {
     });
   });
 
+  it("parses multiple repeated city params into a single list", () => {
+    const parsed = parseListingSearchParams(
+      new URLSearchParams([
+        ["city", "Kraków"],
+        ["city", "Wrocław"],
+      ]),
+    );
+
+    expect(parsed.city).toEqual(["Kraków", "Wrocław"]);
+  });
+
   it("preserves filters in pagination hrefs and omits reset defaults", () => {
     expect(
       buildListingSearchHref({
         transactionType: "RENT",
-        city: "Kraków",
+        city: ["Kraków"],
         q: "balkon",
         active: true,
         page: 3,
@@ -73,6 +84,18 @@ describe("listing query parsing", () => {
         sort: "newest",
       }),
     ).toBe("/listings?active=true");
+  });
+
+  it("builds an href with repeated city params for multiple selected cities", () => {
+    expect(
+      buildListingSearchHref({
+        city: ["Kraków", "Wrocław"],
+        active: true,
+        page: 1,
+        pageSize: 20,
+        sort: "newest",
+      }),
+    ).toBe("/listings?city=Krak%C3%B3w&city=Wroc%C5%82aw&active=true");
   });
 
   it("rejects an oversized page size", () => {

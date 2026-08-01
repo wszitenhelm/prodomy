@@ -232,10 +232,16 @@ export function normalizeFloorInfo(
 
   const normalized = normalizePolishText(input);
 
-  if (normalized === "parter") {
+  // "parter" (ground floor) has no leading digit, so it never matches the
+  // slash/phrase patterns below on its own. Without this, e.g. "parter z 3"
+  // fell through to the plain digit match, which picked up the "3" (the
+  // building's floor count) and reported it as the unit's own floor.
+  const parterMatch = normalized.match(/^parter(?:\s*[/z]\s*(\d+))?$/);
+
+  if (parterMatch !== null) {
     return {
       floor: 0,
-      floorCount: null,
+      floorCount: parterMatch[1] === undefined ? null : Number(parterMatch[1]),
       warning: null,
     };
   }

@@ -70,22 +70,21 @@ export function generateProbableDuplicateCandidates(
       const leftArea = toNumber(left.areaM2);
       const rightArea = toNumber(right.areaM2);
 
-      if (
-        leftArea !== null &&
-        rightArea !== null &&
-        relativeDifference(leftArea, rightArea) > 0.03
-      ) {
+      // Area must match exactly, not just be close: a tolerance here treats
+      // two genuinely different apartments in the same building as
+      // "probably the same unit" whenever their sizes happen to round
+      // similarly, which is not evidence of a duplicate.
+      if (leftArea !== null && rightArea !== null && leftArea !== rightArea) {
         continue;
       }
 
       const leftPrice = toNumber(left.priceAmount);
       const rightPrice = toNumber(right.priceAmount);
-      const priceTolerance = left.transactionType === "SALE" ? 0.12 : 0.18;
 
       if (
         leftPrice !== null &&
         rightPrice !== null &&
-        relativeDifference(leftPrice, rightPrice) > priceTolerance
+        relativeDifference(leftPrice, rightPrice) > 0.03
       ) {
         continue;
       }
@@ -182,6 +181,10 @@ export function scoreProbableDuplicate(
 
   if (left.floor !== null && right.floor !== null && left.floor === right.floor) {
     addComponent(components, "FLOOR_MATCH", 5, "Floor matches.");
+  }
+
+  if (left.hasBalcony && right.hasBalcony) {
+    addComponent(components, "BALCONY_MATCH", 8, "Both listings have a balcony.");
   }
 
   if (

@@ -46,7 +46,7 @@ describe("listing repository", () => {
   it("builds individual structured filters", () => {
     const where = buildPublicListingWhere({
       transactionType: "SALE",
-      city: "Kraków",
+      city: ["Kraków"],
       district: "Krowodrza",
       minPrice: 500000,
       maxPrice: 900000,
@@ -61,7 +61,7 @@ describe("listing repository", () => {
 
     expect(where).toMatchObject({
       transactionType: "SALE",
-      city: { equals: "Kraków" },
+      city: { in: ["Kraków"] },
       district: { equals: "Krowodrza" },
       rooms: 3,
       priceAmount: { gte: 500000, lte: 900000 },
@@ -69,11 +69,25 @@ describe("listing repository", () => {
     });
   });
 
+  it("builds a city filter matching multiple cities at once", () => {
+    const where = buildPublicListingWhere({
+      city: ["Kraków", "Wrocław"],
+      active: true,
+      page: 1,
+      pageSize: 20,
+      sort: "newest",
+    });
+
+    expect(where).toMatchObject({
+      city: { in: ["Kraków", "Wrocław"] },
+    });
+  });
+
   it("builds combined filters together", () => {
     const where = buildPublicListingWhere({
       q: "centrum",
       transactionType: "RENT",
-      city: "Warszawa",
+      city: ["Warszawa"],
       district: "Śródmieście",
       minPrice: 3000,
       maxPrice: 6000,
@@ -90,7 +104,7 @@ describe("listing repository", () => {
       publicationStatus: "PUBLISHED",
       isPrimary: true,
       transactionType: "RENT",
-      city: { equals: "Warszawa" },
+      city: { in: ["Warszawa"] },
       district: { equals: "Śródmieście" },
       rooms: 2,
       priceAmount: { gte: 3000, lte: 6000 },

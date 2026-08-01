@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { ListingCard } from "@/modules/listings/components/listing-card";
 import { ListingFilters } from "@/modules/listings/components/listing-filters";
 import { ListingPagination } from "@/modules/listings/components/listing-pagination";
+import { ListingsHero } from "@/modules/listings/components/listings-hero";
 import { searchParamsToInput } from "@/modules/listings/queries";
 import { getListingIndex } from "@/modules/listings/service";
 
@@ -21,16 +22,16 @@ export default async function ListingsPage({
     const result = await getListingIndex(filters);
 
     return (
-      <main className="shell shell--wide">
-        <section className="listings-layout">
-          <aside>
-            <ListingFilters filters={filters} />
-          </aside>
+      <main>
+        <ListingsHero filters={filters} />
+        <div className="shell shell--wide stack">
+          <ListingFilters filters={filters} />
+
           <section className="stack">
             <header className="panel results-header">
               <div>
                 <p className="eyebrow">Oferty mieszkań</p>
-                <h1>Przeglądaj aktywne ogłoszenia</h1>
+                <h2>Przeglądaj aktywne ogłoszenia</h2>
                 <p className="muted">
                   {result.pagination.total} wyników, strona {result.pagination.page} z{" "}
                   {Math.max(result.pagination.totalPages, 1)}
@@ -56,7 +57,7 @@ export default async function ListingsPage({
 
             <ListingPagination filters={filters} pagination={result.pagination} />
           </section>
-        </section>
+        </div>
       </main>
     );
   } catch (error) {

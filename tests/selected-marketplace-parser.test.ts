@@ -100,8 +100,8 @@ describe("selectedMarketplaceAdapter", () => {
     expect(listing.contactName).toBeNull();
     expect(listing.contactPhone).toBeNull();
     expect(listing.attributes["Pokoje"]).toBeUndefined();
-    expect(listing.photos).toHaveLength(1);
-    expect(listing.extractionWarnings).toEqual([]);
+    expect(listing.photos).toHaveLength(0);
+    expect(listing.extractionWarnings.map((warning) => warning.code)).toEqual(["PHOTOS_MISSING"]);
   });
 
   it("surfaces extraction warnings for malformed listing markup", () => {
@@ -119,5 +119,31 @@ describe("selectedMarketplaceAdapter", () => {
     expect(listing.extractionWarnings.map((warning) => warning.code)).toEqual(
       expect.arrayContaining(["TITLE_MISSING", "PRICE_MISSING", "PHOTOS_MISSING"]),
     );
+  });
+
+  it("only extracts photos from this listing's own gallery, not unrelated page content", () => {
+    const html = `
+      <html>
+        <body>
+          <h1>Mieszkanie na sprzedaż</h1>
+          <div class="details-price__item">500 000 zł</div>
+          <div class="page-details__location-row">Kraków</div>
+          <div class="details-gallery">
+            <img class="details-gallery__img" src="https://img1.staticmorizon.com.pl/thumb/aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5L3JlYWwtbGlzdGluZy1waG90by5qcGc=/3x2_m/photo-1.jpg" />
+          </div>
+          <div class="podobne-oferty">
+            <img src="https://img1.staticmorizon.com.pl/thumb/aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5L3VucmVsYXRlZC1zaW1pbGFyLWxpc3RpbmcuanBn/3x2_m/other.jpg" />
+          </div>
+        </body>
+      </html>
+    `;
+    const listing = selectedMarketplaceAdapter.parseListing({
+      url: "https://www.morizon.pl/oferta/sprzedaz-mieszkanie-krakow-test-mzn2047000123",
+      html,
+      $: load(html),
+      fetchedAt: "2026-08-01T12:00:00.000Z",
+    });
+
+    expect(listing.photos).toEqual(["https://d-gr.cdngr.pl/kadry/real-listing-photo.jpg"]);
   });
 });

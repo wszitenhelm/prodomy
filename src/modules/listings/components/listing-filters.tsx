@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import type { ListingSearchInput } from "@/modules/listings/types";
-import { cityOptions } from "@/modules/listings/formatters";
 
 interface ListingFiltersProps {
   readonly filters: ListingSearchInput;
@@ -12,6 +11,13 @@ export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
   return (
     <form className="filters-card" action="/listings" method="get">
       <input name="active" type="hidden" value="true" />
+      {/* Transaction type and city are chosen in the hero above; preserve
+          them here so applying the rest of these filters does not reset
+          that selection. */}
+      {filters.transactionType !== undefined ? (
+        <input name="transactionType" type="hidden" value={filters.transactionType} />
+      ) : null}
+      {filters.city?.map((city) => <input key={city} name="city" type="hidden" value={city} />)}
       <div className="filters-card__header">
         <div>
           <p className="eyebrow">Wyszukiwanie</p>
@@ -23,43 +29,10 @@ export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
       </div>
       <fieldset className="filters-grid">
         <legend className="sr-only">Filtry wyszukiwania ofert</legend>
-        <div className="field">
-          <span id="transaction-type-label">Typ transakcji</span>
-          <div className="segmented-control" role="radiogroup" aria-labelledby="transaction-type-label">
-            {[
-              { label: "Wszystkie", value: "" },
-              { label: "Sprzedaż", value: "SALE" },
-              { label: "Wynajem", value: "RENT" },
-            ].map((option) => (
-              <label className="segmented-control__option" key={option.label}>
-                <input
-                  defaultChecked={(filters.transactionType ?? "") === option.value}
-                  name="transactionType"
-                  type="radio"
-                  value={option.value}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
         <label className="field field--wide">
           <span>Szukaj</span>
           <input defaultValue={filters.q ?? ""} name="q" placeholder="np. balkon, Kazimierz, Dietla" type="search" />
         </label>
-
-        <label className="field">
-          <span>Miasto</span>
-          <select defaultValue={filters.city ?? ""} name="city">
-            <option value="">Wszystkie miasta</option>
-            {cityOptions.map((city) => (
-              <option key={city} value={city}>
-            {city}
-          </option>
-        ))}
-      </select>
-    </label>
 
         <label className="field">
           <span>Dzielnica</span>
@@ -78,25 +51,31 @@ export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
           </select>
         </label>
 
-        <label className="field">
-          <span>Cena od</span>
-          <input defaultValue={filters.minPrice?.toString() ?? ""} inputMode="numeric" min="1" name="minPrice" placeholder="np. 400000" type="number" />
-        </label>
+        <div className="field-range-group">
+          <div className="field-range-row">
+            <label className="field">
+              <span>Cena od</span>
+              <input defaultValue={filters.minPrice?.toString() ?? ""} inputMode="numeric" min="1" name="minPrice" placeholder="np. 400000" type="number" />
+            </label>
 
-        <label className="field">
-          <span>Cena do</span>
-          <input defaultValue={filters.maxPrice?.toString() ?? ""} inputMode="numeric" min="1" name="maxPrice" placeholder="np. 900000" type="number" />
-        </label>
+            <label className="field">
+              <span>Cena do</span>
+              <input defaultValue={filters.maxPrice?.toString() ?? ""} inputMode="numeric" min="1" name="maxPrice" placeholder="np. 900000" type="number" />
+            </label>
+          </div>
 
-        <label className="field">
-          <span>Metraż od</span>
-          <input defaultValue={filters.minArea?.toString() ?? ""} inputMode="decimal" min="1" name="minArea" placeholder="np. 35" step="0.1" type="number" />
-        </label>
+          <div className="field-range-row">
+            <label className="field">
+              <span>Metraż od</span>
+              <input defaultValue={filters.minArea?.toString() ?? ""} inputMode="decimal" min="1" name="minArea" placeholder="np. 35" step="0.1" type="number" />
+            </label>
 
-        <label className="field">
-          <span>Metraż do</span>
-          <input defaultValue={filters.maxArea?.toString() ?? ""} inputMode="decimal" min="1" name="maxArea" placeholder="np. 80" step="0.1" type="number" />
-        </label>
+            <label className="field">
+              <span>Metraż do</span>
+              <input defaultValue={filters.maxArea?.toString() ?? ""} inputMode="decimal" min="1" name="maxArea" placeholder="np. 80" step="0.1" type="number" />
+            </label>
+          </div>
+        </div>
 
         <label className="field">
           <span>Sortowanie</span>
@@ -107,11 +86,6 @@ export function ListingFilters({ filters }: ListingFiltersProps): ReactElement {
             <option value="area_asc">Metraż rosnąco</option>
             <option value="area_desc">Metraż malejąco</option>
           </select>
-        </label>
-
-        <label className="field checkbox-field">
-          <span>Aktywne oferty</span>
-          <input checked readOnly type="checkbox" />
         </label>
       </fieldset>
 

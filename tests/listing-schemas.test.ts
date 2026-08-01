@@ -84,7 +84,7 @@ describe("listing domain schemas", () => {
       },
       appliedFilters: {
         active: true,
-        city: "Wrocław",
+        city: ["Wrocław"],
         sort: "newest",
         page: 1,
         pageSize: 20,

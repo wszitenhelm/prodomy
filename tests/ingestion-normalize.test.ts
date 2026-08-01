@@ -75,6 +75,9 @@ describe("ingestion normalizers", () => {
     ["parter", { floor: 0, floorCount: null }],
     ["4/7", { floor: 4, floorCount: 7 }],
     ["4 piętro z 7", { floor: 4, floorCount: 7 }],
+    ["parter z 3", { floor: 0, floorCount: 3 }],
+    ["parter/5", { floor: 0, floorCount: 5 }],
+    ["Parter z 10", { floor: 0, floorCount: 10 }],
   ])("normalizes floor info %s", (input, expected) => {
     expect(normalizeFloorInfo(input)).toMatchObject(expected);
   });
@@ -144,6 +147,25 @@ describe("ingestion normalizers", () => {
     expect(clean).toBe("Opis oferty");
   });
 
+  test("decodes numeric HTML entities used for Polish diacritics and symbols", () => {
+    const clean = cleanDescription(
+      "Opis nieruchomo&#x15b;ci &#x2705; Pi&#x119;tro 2 z 18 &#x25e6; 50 m&#xb2; &#x2014; koniec",
+    );
+
+    expect(clean).toBe("Opis nieruchomości ✅ Piętro 2 z 18 ◦ 50 m² — koniec");
+  });
+
+  test("decodes double-encoded entities such as &amp;#39;", () => {
+    expect(cleanDescription("It&amp;#39;s an interior")).toBe("It's an interior");
+  });
+
+  test("removes the trailing 'Pokaż cały opis' marketplace boilerplate", () => {
+    expect(cleanDescription("Jasne mieszkanie w centrum. Pokaż cały opis")).toBe(
+      "Jasne mieszkanie w centrum.",
+    );
+    expect(cleanDescription("Opis bez przycisku.")).toBe("Opis bez przycisku.");
+  });
+
   test("preserves provenance and records conflicting area values", () => {
     const normalized = normalizeRawListing(
       createRawListing({
@@ -157,5 +179,22 @@ describe("ingestion normalizers", () => {
     expect(normalized.conflicts.some((conflict) => conflict.field === "areaM2")).toBe(true);
     expect(normalized.provenance.some((entry) => entry.field === "areaM2")).toBe(true);
     expect(normalized.sourceUrlCanonical).toBe("https://example.test/listing/1");
+  });
+
+  test.each([
+    ["Tak", true],
+    ["tak", true],
+    ["Nie", false],
+    [undefined, false],
+  ])("detects hasBalcony from the Balkon attribute (%s)", (balkon, expected) => {
+    const normalized = normalizeRawListing(
+      createRawListing({
+        attributes: {
+          ...(balkon === undefined ? {} : { Balkon: balkon }),
+        },
+      }),
+    );
+
+    expect(normalized.hasBalcony).toBe(expected);
   });
 });

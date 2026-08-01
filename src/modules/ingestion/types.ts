@@ -104,6 +104,7 @@ export interface NormalizedIngestionListing {
   readonly floor: number | null;
   readonly floorCount: number | null;
   readonly buildingYear?: number | null;
+  readonly hasBalcony: boolean;
   readonly availableFrom: string | null;
   readonly sourcePublishedAt: string | null;
   readonly sourceUpdatedAt: string | null;
