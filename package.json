@@ -23,6 +23,7 @@
     "prisma:seed": "node --env-file=.env --import tsx prisma/seed.ts",
     "ingest": "node --env-file=.env --import tsx scripts/ingest.ts",
     "ai:backfill": "node --env-file=.env --import tsx scripts/backfill-ai-summaries.ts",
+    "photos:backfill": "node --env-file=.env --import tsx scripts/backfill-listing-photos.ts",
     "locations:backfill": "node --env-file=.env --import tsx scripts/backfill-listing-coordinates.ts"
   },
   "dependencies": {

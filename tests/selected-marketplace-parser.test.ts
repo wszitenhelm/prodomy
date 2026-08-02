@@ -135,8 +135,16 @@ describe("selectedMarketplaceAdapter", () => {
           <div class="details-price__item">500 000 zł</div>
           <div class="page-details__location-row">Kraków</div>
           <div class="details-gallery">
-            <img class="details-gallery__img" src="https://img1.staticmorizon.com.pl/thumb/aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5L3JlYWwtbGlzdGluZy1waG90by5qcGc=/3x2_m/photo-1.jpg" />
+            <img class="details-gallery__img" src="https://img1.staticmorizon.com.pl/thumb/aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5LzQ4NDUwMDAwXzEtcmVhbC1saXN0aW5nLXBob3RvLmpwZw==/3x2_m/photo-1.jpg" />
           </div>
+          <script>
+            window.gallery = [
+              "https://img1.staticmorizon.com.pl/thumb/aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5LzQ4NDUwMDAwXzItcmVhbC1saXN0aW5nLXBob3RvLmpwZw==/3x2_m/photo-2.jpg"
+            ];
+          </script>
+          <script id="__NUXT_DATA__" type="application/json">
+            ["aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5LzQ4NDUwMDAwXzMtcmVhbC1saXN0aW5nLXBob3RvLmpwZw=="]
+          </script>
           <div class="podobne-oferty">
             <img src="https://img1.staticmorizon.com.pl/thumb/aHR0cHM6Ly9kLWdyLmNkbmdyLnBsL2thZHJ5L3VucmVsYXRlZC1zaW1pbGFyLWxpc3RpbmcuanBn/3x2_m/other.jpg" />
           </div>
@@ -150,6 +158,10 @@ describe("selectedMarketplaceAdapter", () => {
       fetchedAt: "2026-08-01T12:00:00.000Z",
     });
 
-    expect(listing.photos).toEqual(["https://d-gr.cdngr.pl/kadry/real-listing-photo.jpg"]);
+    expect(listing.photos).toEqual([
+      "https://d-gr.cdngr.pl/kadry/48450000_1-real-listing-photo.jpg",
+      "https://d-gr.cdngr.pl/kadry/48450000_2-real-listing-photo.jpg",
+      "https://d-gr.cdngr.pl/kadry/48450000_3-real-listing-photo.jpg",
+    ]);
   });
 });

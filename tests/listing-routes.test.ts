@@ -27,6 +27,8 @@ describe("GET /api/listings", () => {
           {
             id: "listing-1",
             title: "Mieszkanie w centrum",
+            displayTitle: "2 pokoje · 50 m² · Kraków · Stare Miasto",
+            highlights: [],
             transactionType: "SALE",
             source: "SELECTED_MARKETPLACE",
             sourceUrl: "https://example.com/listing-1",
@@ -173,6 +175,8 @@ describe("GET /api/listings/[id]", () => {
       getListingDetail: vi.fn().mockResolvedValue({
         id: "listing-1",
         title: "Mieszkanie w centrum",
+        displayTitle: "2 pokoje · 60 m² · Kraków · Krowodrza",
+        highlights: [],
         transactionType: "RENT",
         source: "SELECTED_MARKETPLACE",
         sourceUrl: "https://example.com/listing-1",

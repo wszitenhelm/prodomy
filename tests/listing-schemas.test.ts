@@ -60,6 +60,8 @@ describe("listing domain schemas", () => {
           sourceUrl: "https://example.test/listing/1",
           transactionType: "RENT",
           title: "Do wynajęcia mieszkanie",
+          displayTitle: "2 pokoje · 48,5 m² · Wrocław · Krzyki",
+          highlights: ["Balkon"],
           priceAmount: "3200.00",
           currency: "PLN",
           administrativeFee: "650.00",

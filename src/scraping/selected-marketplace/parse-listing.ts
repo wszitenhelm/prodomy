@@ -146,6 +146,66 @@ function collectPhotoUrls(context: MarketplaceParseContext): string[] {
     }
   });
 
+  const galleryScopes = [...urls].flatMap((url) => {
+    try {
+      const parsed = new URL(url);
+      const separatorIndex = parsed.pathname.lastIndexOf("/");
+      const directory = parsed.pathname.slice(0, separatorIndex + 1);
+      const filename = parsed.pathname.slice(separatorIndex + 1);
+      const assetId = filename.match(/^(\d+)_/)?.[1];
+
+      return assetId === undefined ? [] : [{ directory, assetId }];
+    } catch {
+      return [];
+    }
+  });
+
+  // Morizon renders only two gallery images with the gallery class. A third
+  // preview occurs as another proxy URL, while the complete gallery is stored
+  // as bare Base64 URLs in Nuxt data. Matching both the CDN directory and
+  // asset ID keeps these scans scoped to this offer rather than recommendations.
+  const encodedCandidates = new Set<string>();
+
+  for (const match of context.html.matchAll(/\/thumb\/([A-Za-z0-9+/]+={0,2})\//g)) {
+    if (match[1] !== undefined) {
+      encodedCandidates.add(match[1]);
+    }
+  }
+
+  const nuxtData = $("#__NUXT_DATA__").text();
+
+  for (const match of nuxtData.matchAll(/"([A-Za-z0-9+/]{40,}={0,2})"/g)) {
+    if (match[1] !== undefined) {
+      encodedCandidates.add(match[1]);
+    }
+  }
+
+  for (const encoded of encodedCandidates) {
+
+    let decoded: string;
+
+    try {
+      decoded = Buffer.from(encoded, "base64").toString("utf8");
+    } catch {
+      continue;
+    }
+
+    try {
+      const parsed = new URL(decoded);
+      const isSameListing = galleryScopes.some(
+        ({ directory, assetId }) =>
+          parsed.pathname.startsWith(directory) &&
+          parsed.pathname.slice(directory.length).startsWith(`${assetId}_`),
+      );
+
+      if (isSameListing) {
+        urls.add(decoded);
+      }
+    } catch {
+      // Ignore malformed proxy payloads at this untrusted boundary.
+    }
+  }
+
   return [...urls];
 }
 

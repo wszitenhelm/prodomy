@@ -70,7 +70,7 @@ export default async function ListingDetailPage({
               <span className={`listing-badge listing-badge--${listing.transactionType.toLowerCase()}`}>
                 {formatTransactionType(listing.transactionType)}
               </span>
-              <h1>{listing.title}</h1>
+              <h1>{listing.displayTitle}</h1>
               <p className="muted">{formatLocation(listing)}</p>
             </div>
             <div className="detail-price">
@@ -90,7 +90,7 @@ export default async function ListingDetailPage({
           </dl>
         </section>
 
-        <ListingGallery photos={listing.photos} title={listing.title} />
+        <ListingGallery photos={listing.photos} title={listing.displayTitle} />
 
         {listing.aiSummary !== null ? (
           <section className="panel ai-summary">
@@ -157,7 +157,7 @@ export default async function ListingDetailPage({
         <ListingMap
           latitude={listing.latitude}
           longitude={listing.longitude}
-          title={listing.title}
+          title={listing.displayTitle}
         />
 
         {listing.aiSummary === null ? (

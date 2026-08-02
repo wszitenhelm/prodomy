@@ -1,6 +1,10 @@
 import type { Decimal } from "@prisma/client/runtime/library";
 
 import { parseListingAiSummary } from "@/modules/listings/ai-summary";
+import {
+  deriveListingHighlights,
+  formatListingDisplayTitle,
+} from "@/modules/listings/formatters";
 import type {
   ListingFeature,
   ListingPhoto,
@@ -68,9 +72,25 @@ function calculatePricePerSquareMetre(listing: ListingRecord): string | null {
 }
 
 export function mapListingRecordToListItem(listing: ListingRecord): PublicListingListItem {
+  const title = requireValue(listing.title, "title");
+  const areaM2 = requireValue(decimalToString(listing.areaM2), "areaM2");
+  const city = requireValue(listing.city, "city");
+  const features = listing.features.map(mapListingFeature);
+
   return {
     id: listing.id,
-    title: requireValue(listing.title, "title"),
+    title,
+    displayTitle: formatListingDisplayTitle({
+      areaM2,
+      city,
+      district: listing.district,
+      rooms: listing.rooms,
+    }),
+    highlights: deriveListingHighlights({
+      sourceTitle: title,
+      buildingType: listing.buildingType,
+      features,
+    }),
     transactionType: requireValue(listing.transactionType, "transactionType"),
     source: listing.source,
     sourceUrl: listing.sourceUrl,
@@ -78,9 +98,9 @@ export function mapListingRecordToListItem(listing: ListingRecord): PublicListin
     currency: requireValue(listing.currency, "currency"),
     administrativeFee: decimalToString(listing.administrativeFee),
     pricePerSquareMetre: calculatePricePerSquareMetre(listing),
-    areaM2: requireValue(decimalToString(listing.areaM2), "areaM2"),
+    areaM2,
     rooms: listing.rooms,
-    city: requireValue(listing.city, "city"),
+    city,
     district: listing.district,
     street: listing.street,
     floor: listing.floor,

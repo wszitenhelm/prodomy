@@ -61,6 +61,21 @@ const featureLabels: Record<ListingFeature["key"], string> = {
   GATED_PROPERTY: "Osiedle zamknięte",
 };
 
+const highlightFeaturePriority: readonly ListingFeature["key"][] = [
+  "AIR_CONDITIONING",
+  "GARAGE",
+  "PARKING",
+  "BALCONY",
+  "TERRACE",
+  "GARDEN",
+  "ELEVATOR",
+  "FURNISHED",
+  "STORAGE_ROOM",
+  "SECURITY",
+  "GATED_PROPERTY",
+  "PET_FRIENDLY",
+];
+
 export const cityOptions = ["Kraków", "Warszawa", "Wrocław", "Gdańsk"] as const;
 
 export function formatCurrency(amount: string): string {
@@ -77,6 +92,96 @@ export function formatRooms(rooms: number | null): string | null {
   }
 
   return `${rooms} pok.`;
+}
+
+export function formatRoomsLong(rooms: number | null): string | null {
+  if (rooms === null) {
+    return null;
+  }
+
+  const lastTwoDigits = rooms % 100;
+  const lastDigit = rooms % 10;
+  const noun =
+    lastTwoDigits >= 12 && lastTwoDigits <= 14
+      ? "pokoi"
+      : lastDigit === 1
+        ? "pokój"
+        : lastDigit >= 2 && lastDigit <= 4
+          ? "pokoje"
+          : "pokoi";
+
+  return `${rooms} ${noun}`;
+}
+
+export function formatListingDisplayTitle(
+  listing: Pick<PublicListingListItem, "areaM2" | "city" | "district" | "rooms">,
+): string {
+  const district =
+    listing.district?.localeCompare(listing.city, "pl", { sensitivity: "base" }) === 0
+      ? null
+      : listing.district;
+
+  return [
+    formatRoomsLong(listing.rooms),
+    formatArea(listing.areaM2),
+    listing.city,
+    district,
+  ]
+    .filter((value): value is string => value !== null)
+    .join(" · ");
+}
+
+function normalizeHighlightSource(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+}
+
+export function deriveListingHighlights(input: {
+  readonly sourceTitle: string;
+  readonly buildingType: string | null;
+  readonly features: readonly ListingFeature[];
+  readonly limit?: number;
+}): string[] {
+  const sourceText = normalizeHighlightSource(
+    `${input.sourceTitle} ${input.buildingType ?? ""}`,
+  );
+  const highlights: string[] = [];
+
+  const add = (label: string): void => {
+    if (!highlights.includes(label)) {
+      highlights.push(label);
+    }
+  };
+
+  for (const key of highlightFeaturePriority) {
+    if (
+      input.features.some(
+        (feature) => feature.key === key && feature.booleanValue !== false,
+      )
+    ) {
+      add(featureLabels[key]);
+    }
+  }
+
+  if (sourceText.includes("klimatyzac")) {
+    add("Klimatyzacja");
+  }
+
+  if (/bez\s+prowizj/.test(sourceText)) {
+    add("Bez prowizji");
+  }
+
+  if (/\bloft\b/.test(sourceText)) {
+    add("Loft");
+  }
+
+  if (sourceText.includes("kamienic")) {
+    add("Kamienica");
+  }
+
+  return highlights.slice(0, input.limit ?? 2);
 }
 
 export function formatFloor(

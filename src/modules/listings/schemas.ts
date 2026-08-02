@@ -205,6 +205,8 @@ export const listingSearchInputSchema = listingSearchInputBaseSchema.superRefine
 export const publicListingListItemSchema = z.object({
   id: listingIdSchema,
   title: z.string().trim().min(1),
+  displayTitle: z.string().trim().min(1),
+  highlights: z.array(z.string().trim().min(1)).max(2),
   transactionType: z.enum(transactionTypes),
   source: z.enum(marketplaces),
   sourceUrl: z.url(),
