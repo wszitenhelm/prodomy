@@ -162,9 +162,13 @@ textarea {
   opacity: 0;
 }
 
+.landing-intro {
+  position: relative;
+}
+
 .landing-mark {
-  position: fixed;
-  top: 50%;
+  position: absolute;
+  top: 50vh;
   left: 50%;
   z-index: 50;
   transform: translate(-50%, -50%);

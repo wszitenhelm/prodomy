@@ -28,7 +28,7 @@ export function LandingIntro({ hasSeenIntro, children }: LandingIntroProps): Rea
   }, [hasSeenIntro]);
 
   return (
-    <>
+    <div className="landing-intro">
       <div className={`landing-mark${isSettled ? " landing-mark--settled" : ""}`}>
         <BrandMark />
       </div>
@@ -40,6 +40,6 @@ export function LandingIntro({ hasSeenIntro, children }: LandingIntroProps): Rea
       >
         {children}
       </div>
-    </>
+    </div>
   );
 }
